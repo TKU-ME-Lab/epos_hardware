@@ -32,14 +32,15 @@ void velocity1_callback(const std_msgs::Float64ConstPtr& msg){
 }
 
 void velocity2_callback(const std_msgs::Float64ConstPtr& msg){
-    if(subhandle){
+    if(handle){
         std::cout << "Set Velocity: " << msg->data << std::endl;
-        int result = VCS_MoveWithVelocity(subhandle, 2, (int)msg->data, &error_code);
+        int result = VCS_MoveWithVelocity(handle, 2, (int)msg->data, &error_code);
         if (result){
             std::cout << "Moving" << std::endl;
         }
         else{
             std::cout << "Result: " << result << std::endl;
+            std::cout << "Error: " << error_code << std::endl;
         }
     }
 }
@@ -70,15 +71,39 @@ int main(int argc, char** argv){
             }
         }
 
+        // result = VCS_ClearFault(handle, 2, &error_code);
+        // if (result){
+        //     std::cout << "Activate Node 2" << std::endl;
+        //     result = VCS_ActivateProfileVelocityMode(handle, 2, &error_code);
+        //     if (result){
+        //         std::cout << "Set VP" << std::endl;
+        //         result = VCS_SetVelocityProfile(handle, 2, 100, 100, &error_code);
+        //         if (result){
+        //             result = VCS_SetEnableState(handle, 2, &error_code);
+        //             if (!result){
+        //                 return 0;
+        //             }
+        //         }
+        //     }
+        // }
+
         subhandle = VCS_OpenSubDevice(handle, (char*)device.c_str(), (char*)subprotocol.c_str(), &error_code);
         if (subhandle){
+            std::cout << "Open Sub Device" << std::endl;
             int result = VCS_ClearFault(subhandle, 2, &error_code);
+            std::cout << "ClearFault, Result: " << result << std::endl;
             if (result){
+                std::cout << "Activate PVM,";
                 result = VCS_ActivateProfileVelocityMode(subhandle, 2, &error_code);
+                std::cout << "Result" << result << std::endl;
                 if (result){
+                    std::cout << "Set VP, ";
                     result = VCS_SetVelocityProfile(subhandle, 2, 100, 100, &error_code);
+                    std::cout << "Result" << result << std::endl; 
                     if (result){
+                        std::cout << "Enable State, ";
                         result = VCS_SetEnableState(subhandle, 2, &error_code);
+                        std::cout << "Result" << result << std::endl; 
                         if (!result){
                             return 0;
                         }
@@ -87,8 +112,6 @@ int main(int argc, char** argv){
             }
         }
     }    
-
-    
     
     ros::Rate loop_rate(10);
     while(ros::ok()){
