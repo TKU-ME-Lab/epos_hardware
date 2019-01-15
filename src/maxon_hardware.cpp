@@ -14,11 +14,12 @@ std::string interface = "USB";
 std::string port = "USB0";
 unsigned int error_code = 0;
 HANDLE handle = NULL;
+HANDLE subhandle = NULL;
 
 void velocity_callback(const std_msgs::Float64ConstPtr& msg){
     if (handle){
         std::cout << "Set Velocity: " << msg->data << std::endl;
-       int result = VCS_MoveWithVelocity(handle, 1, (int)msg->data, &error_code);
+        int result = VCS_MoveWithVelocity(handle, 1, (int)msg->data, &error_code);
         if (result){
             std::cout << "Moving" << std::endl;
         }
@@ -28,11 +29,25 @@ void velocity_callback(const std_msgs::Float64ConstPtr& msg){
     }
 }
 
+// void velocity_callback(const std_msgs::Float64ConstPtr& msg){
+//     if(subhandle){
+//         std::cout << "Set Velocity: " << msg->data << std::endl;
+//         int result = VCS_MoveWithVelocity(subhandle, 1, (int)msg->data, &error_code);
+//         if (result){
+//             std::cout << "Moving" << std::endl;
+//         }
+//         else{
+//             std::cout << "Result: " << result << std::endl;
+//         }
+//     }
+// }
+
 int main(int argc, char** argv){
     ros::init(argc, argv, "maxon_hardware");
     
     ros::NodeHandle nh;
-    ros::Subscriber velocity_subsriber = nh.subscribe("/velocity_cmd", 10, velocity_callback);
+    ros::Subscriber velocity_subscriber = nh.subscribe("/epos/1/velocity_cmd", 10, velocity_callback);
+    //ros::Subscriber velocity_subscriber1 = nh.subscribe("/epos/2/velocity_cmd", 10, )
 
     handle = VCS_OpenDevice((char*)device.c_str(), (char*)protocol.c_str(), (char*)interface.c_str(), (char*)port.c_str(), &error_code);
     if (!handle){

@@ -132,6 +132,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(maxon_hardware src/maxon_hardware.cpp)
+add_executable(maxon_test src/test.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -144,7 +145,12 @@ add_executable(maxon_hardware src/maxon_hardware.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(maxon_hardware
+target_link_libraries(maxon_hardware
+   ${catkin_LIBRARIES}
+   EposCmd
+)
+
+target_link_libraries(maxon_test
    ${catkin_LIBRARIES}
    EposCmd
 )

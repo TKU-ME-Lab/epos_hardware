@@ -4,7 +4,6 @@
 #include <string>
 #include "maxon_hardware/Definitions.h"
 
-
 #define MAX_STRING_SIZE 100
 
 int GetDeviceNameList(std::vector<std::string>* device_name, unsigned int* error_code){
