@@ -1,0 +1,9 @@
+<launch>
+    <node name="maxon_test" pkg="maxon_hardware" type="maxon_test" args="forward_left_motor
+                                                                         forward_right_motor
+                                                                         backward_left_motor
+                                                                         backward_right_motor" output="screen">
+        <rosparam command="load" file="$(find maxon_hardware)/config/actuator_definition.yaml"/>
+    </node>
+
+</launch>

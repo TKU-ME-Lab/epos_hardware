@@ -53,6 +53,11 @@
   <build_export_depend>roscpp</build_export_depend>
   <exec_depend>roscpp</exec_depend>
 
+  <depend>hardware_interface</depend>
+  <depend>transmission_interface</depend>
+  <depend>controller_manager</depend>
+  <depend>diagnostic_updater</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

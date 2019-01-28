@@ -1,14 +1,51 @@
-#include <string>
-#include <vector>
-#include <map>
-#include <stdint.h>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-
 #include "maxon_hardware/Definitions.h"
+#include "maxon_hardware/util.h"
+
+class CEpos {
+    typedef enum{
+        PROFILE_POSITION_MODE = 1,
+        PROFILE_VELOCITY_MODE = 3
+    } OperationMode;
+    
+    typedef void* HANDLE;
+
+private:
+    HANDLE m_keyhandle;
+    std::string m_name;
+    std::string m_device_name;
+    unsigned long m_serial_number;
+    unsigned int m_nodeid;
+    OperationMode m_OperationMode;
+
+    double m_position;
+    double m_velocity;
+    double m_current;
+    double m_effort;
+
+    bool m_has_init;
+
+    double m_position_cmd;
+    double m_velocity_cmd;
+
+    int m_max_profile_velocity;
+    
+    bool m_halt_velocity;
+
+    double m_torque_constant;
+    double m_nominal_current;
+    double m_max_current;
+
+    unsigned short m_statusword;
+
+public:
+    CEpos(const std::string& name);
+
+    bool init();
+    void write();
+    void read();
+
+    std::string name() {return m_name;}
+    std::string device_name() {return m_device_name;}
+};
 
 
-int GetDeviceNameList(std::vector<std::string>*, unsigned int* );
-int GetProtocolStackNameList(const std::string, std::vector<std::string>*, unsigned int*);
-int GetInterfaceNameList(const std::string, const std::string, std::vector<std::string>*, unsigned int*);
-int GetPortNameList(const std::string, const std::string, const std::string, std::vector<std::string>*, unsigned int*);

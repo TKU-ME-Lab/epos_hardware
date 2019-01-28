@@ -9,6 +9,10 @@ project(maxon_hardware)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  hardware_interface
+  transmission_interface
+  controller_manager
+  diagnostic_updater
 )
 
 ## System dependencies are found with CMake's conventions
@@ -103,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES maxon_hardware
-#  CATKIN_DEPENDS roscpp
+  CATKIN_DEPENDS roscpp
 #  DEPENDS system_lib
 )
 
@@ -123,6 +127,10 @@ include_directories(
 #    src/maxon_hardware.cpp
 #)
 
+#add_library(epos_manager
+#    src/cepos.cpp
+#)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -131,7 +139,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(maxon_hardware src/maxon_hardware.cpp)
+#add_executable(maxon_hardware src/maxon_hardware.cpp)
 add_executable(maxon_test src/test.cpp)
 
 ## Rename C++ executable without prefix
@@ -145,15 +153,22 @@ add_executable(maxon_test src/test.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(maxon_hardware
-   ${catkin_LIBRARIES}
-   EposCmd
-)
+#target_link_libraries(epos_manager
+#   ${catkin_LIBRARIES}
+#   EposCmd
+#)
+
+#target_link_libraries(maxon_hardware
+#   ${catkin_LIBRARIES}
+#   EposCmd
+#)
 
 target_link_libraries(maxon_test
    ${catkin_LIBRARIES}
    EposCmd
 )
+
+
 
 #############
 ## Install ##

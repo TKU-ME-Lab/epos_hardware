@@ -1,82 +1,65 @@
 #include "maxon_hardware/cepos.h"
+#include <boost/foreach.hpp>
+#include <math.h>
 
-#define MAX_STRING_SIZE 1000
+// #define VCS(func, ...)
+// if (!VCS_##func)
 
-int GetDeviceNameList(std::vector<std::string>* device_names, unsigned int* error_code){
-    char buffer[MAX_STRING_SIZE];
-    int end_of_selection; //BOOL
-    int result;
-
-    result = VCS_GetDeviceNameSelection(true, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-    if(!result)
-        return result;
-    device_names->push_back(buffer);
-
-    while(!end_of_selection) {
-        result = VCS_GetDeviceNameSelection(false, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-        if(!result)
-        return result;
-        device_names->push_back(buffer);
+void CEpos::write(){
+    if (m_has_init){
+        return;
     }
 
-  return 1;
-}
-
-int GetProtocolStackNameList(const std::string device_name, std::vector<std::string>* protocol_stack_names, unsigned int* error_code){
-    char buffer[MAX_STRING_SIZE];
-    int end_of_selection; //BOOL
-    int result;
-
-    result = VCS_GetProtocolStackNameSelection((char*)device_name.c_str(), true, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-    if(!result)
-     return result;
-    protocol_stack_names->push_back(buffer);
-
-    while(!end_of_selection) {
-    result = VCS_GetProtocolStackNameSelection((char*)device_name.c_str(), false, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-        if(!result)
-        return result;
-        protocol_stack_names->push_back(buffer);
-    }
-
-  return 1;
-}
-
-int GetInterfaceNameList(const std::string device_name, const std::string protocol_stack_name, std::vector<std::string>* interface_names, unsigned int* error_code){
-    char buffer[MAX_STRING_SIZE];
-    int end_of_selection; //BOOL
-    int result;
-
-    result = VCS_GetInterfaceNameSelection((char*)device_name.c_str(), (char*)protocol_stack_name.c_str(), true, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-    if(!result)
-        return result;
-    interface_names->push_back(buffer);
-
-    while(!end_of_selection) {
-        result = VCS_GetInterfaceNameSelection((char*)device_name.c_str(), (char*)protocol_stack_name.c_str(), false, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-        if(!result)
-        return result;
-        interface_names->push_back(buffer);
-    }
-
-    return 1;
-}
-
-int GetPortNameList(const std::string device, const std::string protocol, const std::string interface, std::vector<std::string>* ports, unsigned int* error_code){
-    char buffer[MAX_STRING_SIZE];
-    int end_of_selection = false;
-    int result = VCS_GetPortNameSelection((char*)device.c_str(), (char*)protocol.c_str(), (char*)interface.c_str(), true, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-    if (!result){
-        return result;
-    }
-    ports->push_back(buffer);
-
-    while(!end_of_selection){
-        result = VCS_GetPortNameSelection((char*)device.c_str(), (char*)protocol.c_str(), (char*)interface.c_str(), false, buffer, MAX_STRING_SIZE, &end_of_selection, error_code);
-        if (!result){
-            return result;
+    unsigned int error_code;
+    int result = 0;
+    if (m_OperationMode == PROFILE_VELOCITY_MODE){
+        if (isnan(m_velocity_cmd)){
+            return;
         }
-        ports->push_back(buffer);
+        int cmd = (int)m_velocity_cmd;
+        if (m_max_profile_velocity >= 0){
+            if (cmd < -m_max_profile_velocity){
+                cmd =  -m_max_profile_velocity;
+            }
+            if (cmd > m_max_profile_velocity){
+                cmd = m_max_profile_velocity;
+            }
+        }
+        if (cmd == 0 && m_halt_velocity){
+            VCS_HaltVelocityMovement(m_keyhandle, m_nodeid, &error_code);
+        }
+        else{
+            VCS_MoveWithVelocity(m_keyhandle, m_nodeid, cmd, &error_code);
+        }
     }
+    else if (m_OperationMode == PROFILE_POSITION_MODE){
+        if (isnan(m_position_cmd)){
+            return;
+        }
+        VCS_MoveToPosition(m_keyhandle, m_nodeid, (int)m_position_cmd, true, true, &error_code);
+    }
+
 }
 
+void CEpos::read(){
+    if (!m_has_init){
+        return;
+    }
+
+    unsigned int error_code;
+
+    // Read statusword, Memory Index 0x6041, Sub Index 0x00
+    unsigned int bytes_read;
+    VCS_GetObject(m_keyhandle, m_nodeid, 0x6041, 0x00, &m_statusword, 2, &bytes_read, &error_code);
+
+    int position_raw;
+    int velocity_raw;
+    short current_raw;
+    VCS_GetPositionIs(m_keyhandle, m_nodeid, &position_raw, &error_code);
+    VCS_GetVelocityIs(m_keyhandle, m_nodeid, &velocity_raw, &error_code);
+    VCS_GetCurrentIs(m_keyhandle, m_nodeid, &current_raw, &error_code);
+    m_position = position_raw;
+    m_velocity = velocity_raw;
+    m_current = current_raw / 1000.0;
+    m_effort = m_current * m_torque_constant;
+}
