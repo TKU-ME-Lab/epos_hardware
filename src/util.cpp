@@ -127,6 +127,16 @@ int GetBaudrateList(const std::string device_name, const std::string protocol_st
     }
 }
 
-int CreateDeviceKeyHandle(HANDLE){
+int CreateDeviceKeyHandle(std::string actuator, std::string protocol, std::string interface, uint64_t nodeid, std::string serial_number, HANDLE* keyhandle){
+    std::vector<std::string> port_names;
     
+    unsigned int error_code;
+
+    int result = GetPortNameList(actuator, protocol, interface, &port_names, &error_code);
+
+    
+}
+
+int EnumerateDeviceKeyHandle(){
+
 }

@@ -123,13 +123,13 @@ include_directories(
 )
 
 ## Declare a C++ library
-#add_library(maxon_hardware
-#    src/maxon_hardware.cpp
-#)
+add_library(cepos_manager
+    src/cepos_manager.cpp
+)
 
-#add_library(epos_manager
-#    src/cepos.cpp
-#)
+add_library(cepos_hardware
+    src/cepos_hardware.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -158,17 +158,15 @@ add_executable(maxon_test src/test.cpp)
 #   EposCmd
 #)
 
-#target_link_libraries(maxon_hardware
-#   ${catkin_LIBRARIES}
-#   EposCmd
-#)
+target_link_libraries(cepos_hardware
+   ${catkin_LIBRARIES}
+   EposCmd
+)
 
 target_link_libraries(maxon_test
    ${catkin_LIBRARIES}
    EposCmd
 )
-
-
 
 #############
 ## Install ##

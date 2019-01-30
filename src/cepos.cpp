@@ -5,6 +5,21 @@
 // #define VCS(func, ...)
 // if (!VCS_##func)
 
+CEpos::CEpos(const std::string actuator, const std::string protocol, const std::string interface, 
+             const int id, const std::string serial_number, const std::string mode, const bool clear_fault){
+
+
+
+}
+
+CEpos::~CEpos(){
+    unsigned int error_code;
+    if (m_keyhandle){
+        VCS_SetDisableState(m_keyhandle, m_nodeid, &error_code);
+
+    }
+}
+
 void CEpos::write(){
     if (m_has_init){
         return;
@@ -62,4 +77,16 @@ void CEpos::read(){
     m_velocity = velocity_raw;
     m_current = current_raw / 1000.0;
     m_effort = m_current * m_torque_constant;
+}
+
+double* CEpos::GetPosition(){
+    return &m_position;
+}
+
+double* CEpos::GetVelocity(){
+    return &m_velocity;
+}
+
+double* CEpos::GetEffort(){
+    return &m_effort;
 }

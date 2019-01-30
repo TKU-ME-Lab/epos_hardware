@@ -11,7 +11,7 @@ class CEpos {
 
 private:
     HANDLE m_keyhandle;
-    std::string m_name;
+    std::string m_motor_name;
     std::string m_device_name;
     unsigned long m_serial_number;
     unsigned int m_nodeid;
@@ -38,14 +38,20 @@ private:
     unsigned short m_statusword;
 
 public:
-    CEpos(const std::string& name);
+    CEpos(const std::string actuator, const std::string protocol, const std::string interface, const int id, 
+          const std::string serial_number, const std::string mode, const bool clear_fault);
+    ~CEpos();
 
     bool init();
     void write();
     void read();
 
-    std::string name() {return m_name;}
+    std::string motor_name() {return m_motor_name;}
     std::string device_name() {return m_device_name;}
+
+    double* GetPosition();
+    double* GetVelocity();
+    double* GetEffort();
 };
 
 

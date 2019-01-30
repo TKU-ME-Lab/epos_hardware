@@ -22,6 +22,7 @@ int GetPortNameList(const std::string, const std::string, const std::string, std
 
 int GetBaudrateList(const std::string, const std::string, const std::string, const std::string, std::vector<unsigned int>, unsigned int*);
 
-int CreateDeviceKeyHandle(HANDLE*);
+int CreateDeviceKeyHandle(std::string, std::string, std::string,
+                          uint64_t nodeid, std::string, HANDLE*);
 
 int EnumerateDeviceKeyHandle();
