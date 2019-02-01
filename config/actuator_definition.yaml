@@ -6,7 +6,7 @@ forward_left_motor:
   is_sub_device: false
   node_id: 1
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true
 
   motor:
     type: 1
@@ -52,7 +52,7 @@ forward_right_motor:
   master_device: 'forward_left_motor'
   node_id: 3
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true
 
 backward_left_motor:
   actuator: 'EPOS2'
@@ -62,7 +62,7 @@ backward_left_motor:
   master_device: 'forward_left_motor'
   node_id: 2
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true
 
 backward_right_motor:
   actuator: 'EPOS2'
@@ -72,4 +72,4 @@ backward_right_motor:
   master_device: 'forward_left_motor'
   node_id: 4
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true

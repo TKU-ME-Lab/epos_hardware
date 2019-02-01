@@ -1,17 +1,17 @@
 #include "maxon_hardware/cepos.h"
 
-struct EposParameter{
+typedef struct{
     std::string motor_name;
     std::string actuator;
     std::string protocol;
     std::string interface;
-    uint64_t nodeid;
+    uint16_t nodeid;
     std::string serial_number;
     std::string mode;
     bool clear_fault;
     bool is_sub_device;
     std::string master_device;
-};
+}EposParameter;
 
 
 class CEposManager{

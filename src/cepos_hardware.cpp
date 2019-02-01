@@ -1,5 +1,6 @@
 #include "maxon_hardware/cepos_hardware.h"
 #include <boost/foreach.hpp>
+#include <string>
 
 CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string> motor_names):m_private_nh(pnh)
 {    
@@ -31,24 +32,20 @@ CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string
                     ROS_INFO_STREAM("Interface: " + Param.interface);
                     int _nodeid = 0;
                     if (motor_config_nh.getParam("node_id", _nodeid)){
-                        Param.nodeid = (uint64_t)_nodeid;
-                        ROS_INFO_STREAM("Node ID: " + std::to_string(Param.nodeid));
+                        Param.nodeid = (uint16_t)_nodeid;
+                        std::stringstream ss;
+                        ss << Param.nodeid;
+                        ROS_INFO_STREAM("Node ID: " + ss.str());
                         
                         if (motor_config_nh.getParam("serial_number", Param.serial_number)){
-                            if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                ROS_WARN("No operation_mode in parameters");
-                            }
+                            if (motor_config_nh.getParam("is_sub_device", is_sub_device)){
+                                if (!motor_config_nh.getParam("operation_mode", Param.mode)){
+                                    ROS_WARN("No operation_mode in parameters");
+                                }
 
-                            if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                ROS_WARN("No operation_mode in parameters");
-                            }
-
-                            if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                ROS_WARN("No operation_mode in parameters");
-                            }
-
-                            if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                ROS_WARN("No operation_mode in parameters");
+                                if (!motor_config_nh.getParam("operation_mode", Param.mode)){
+                                    ROS_WARN("No operation_mode in parameters");
+                                }
                             }
                         }
                     }

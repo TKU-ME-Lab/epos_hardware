@@ -123,6 +123,10 @@ include_directories(
 )
 
 ## Declare a C++ library
+add_library(Epos_util
+    src/util.cpp
+)
+
 add_library(cepos_manager
     src/cepos_manager.cpp
 )
@@ -158,14 +162,20 @@ add_executable(maxon_test src/test.cpp)
 #   EposCmd
 #)
 
+target_link_libraries(Epos_util
+   ${catkin_LIBRARIES}
+   EposCmd
+)
+
 target_link_libraries(cepos_hardware
    ${catkin_LIBRARIES}
    EposCmd
 )
 
 target_link_libraries(maxon_test
-   ${catkin_LIBRARIES}
-   EposCmd
+  ${catkin_LIBRARIES}
+  EposCmd
+  Epos_util
 )
 
 #############
