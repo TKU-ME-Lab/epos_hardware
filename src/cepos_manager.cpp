@@ -13,15 +13,15 @@ CEposManager::CEposManager(std::vector<EposParameter> Params){
     BOOST_FOREACH(const EposParameter &Param, Params){
         if (Param.is_sub_device){
             std::string master_device = Param.master_device;
-            std::map<std::string, boost::shared_ptr<CEpos> >::iterator iter = m_motors.find(master_device.c_str());
+            //std::map<std::string, boost::shared_ptr<CEpos> >::iterator iter = m_motors.find(master_device.c_str());
             
-            if (iter != m_motors.end()){
+            //if (iter != m_motors.end()){
                 //boost::shared_ptr<CEpos> motor(new CEpos(Param.actuator, Param.protocol, Param, Param.nodeid, Param.serial_number, ))
-            }
+            //}
         }
     }
 }
 
-std::map<std::string, boost::shared_ptr<CEpos> > CEposManager::GetMotors(){
+MapMotor CEposManager::GetMotors(){
     return m_motors;
 }

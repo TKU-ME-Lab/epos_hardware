@@ -1,23 +1,14 @@
 #include "maxon_hardware/cepos_hardware.h"
 #include <boost/foreach.hpp>
+#include <boost/utility.hpp>
 #include <string>
 
 CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string> motor_names):m_private_nh(pnh)
-{    
-    ROS_INFO("CEposHardware Init");
-    
+{        
     std::vector<EposParameter> Params;
 
     BOOST_FOREACH(const std::string &motor_name, motor_names){
         ROS_INFO_STREAM("Get [" + motor_name + "] Parameter------------------------------------------------");
-        std::string actuator_name = "";
-        std::string protocol = "";
-        std::string interface = "";
-        std::string serial_number = "";
-        std::string profile_mode = "";
-        int id;
-        bool clear_fault = true;
-        bool is_sub_device = false;
         
         EposParameter Param;
 
@@ -54,12 +45,44 @@ CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string
                             }
 
                             Params.push_back(Param);
-                            ROS_INFO_STREAM("---------------------------------------------------------------------------");
+                        }
+                        else{
+                            ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have serial_number");
+                            continue;
                         }
                     }
+                    else{
+                        ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have node_id");
+                        continue;
+                    }
+                }
+                else{
+                    ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have interface");
+                    continue;
                 }
             }
+            else{
+                ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have protocol");  
+                continue;  
+            }
         }
+        else{
+            ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have actuator");
+            continue;
+        }
+    }    
+
+    
+    for (MapMotor::iterator motor_iterator = m_EposManager->GetMotors().begin(); motor_iterator != m_EposManager->GetMotors().end(); motor_iterator++){
+        boost::shared_ptr<CEpos> pEpos(motor_iterator->second);
+        
+        hardware_interface::ActuatorStateHandle statehandle(pEpos->device_name(), pEpos->GetPosition(), pEpos->GetVelocity(), pEpos->GetEffort());
+        m_asi.registerHandle(statehandle);
+
+        hardware_interface::ActuatorHandle position_handle(statehandle, pEpos->GetPositionCmd());
+        m_asi.registerHandle(position_handle);
+        hardware_interface::ActuatorHandle velocity_handle(statehandle, pEpos->GetVelocityCmd());
+        m_asi.registerHandle(velocity_handle);
     }
 }
 

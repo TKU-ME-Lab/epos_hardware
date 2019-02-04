@@ -1,14 +1,19 @@
 #include "maxon_hardware/cepos.h"
+#include <boost/ptr_container/ptr_map.hpp>
+
+typedef std::map<std::string, boost::shared_ptr<CEpos> > MapMotor;
 
 class CEposManager{
 private:
-    std::map<std::string, boost::shared_ptr<CEpos> > m_motors;
+    MapMotor m_motors;
+    //MapMotor m_motors;
+
 
 
 
 public:
     CEposManager(std::vector<EposParameter>);
 
-    std::map<std::string, boost::shared_ptr<CEpos> > GetMotors();
+    MapMotor GetMotors();
 
 };

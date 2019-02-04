@@ -61,8 +61,11 @@ public:
     std::string device_name() {return m_device_name;}
 
     double* GetPosition();
+    double* GetPositionCmd();
     double* GetVelocity();
+    double* GetVelocityCmd();
     double* GetEffort();
+    
 };
 
 

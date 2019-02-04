@@ -119,8 +119,16 @@ double* CEpos::GetPosition(){
     return &m_position;
 }
 
+double* CEpos::GetPositionCmd(){
+    return &m_position_cmd;
+}
+
 double* CEpos::GetVelocity(){
     return &m_velocity;
+}
+
+double* CEpos::GetVelocityCmd(){
+    return &m_velocity_cmd;
 }
 
 double* CEpos::GetEffort(){
