@@ -144,7 +144,8 @@ int CreateDeviceKeyHandle(std::string actuator, std::string protocol, std::strin
             if (!VCS_GetObject(handle, nodeid, 0x2004, 0x00, &Serial_Number_From_Epos, 8, &bytes_read, &error_code)){
                 if (SerialNumberFromHex(serial_number, &Serial_Number_From_Config)){
                     if (Serial_Number_From_Epos == Serial_Number_From_Config){
-                        *keyhandle = handle;
+                        memcpy(keyhandle, handle, sizeof(handle));
+                        return 1;
                     }
                 }    
             }

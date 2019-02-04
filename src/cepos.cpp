@@ -1,14 +1,50 @@
 #include "maxon_hardware/cepos.h"
 #include <boost/foreach.hpp>
 #include <math.h>
+#include <iostream>
 
-// #define VCS(func, ...)
-// if (!VCS_##func)
+CEpos::CEpos(const EposParameter Param):
+             m_device_name(Param.actuator), m_serial_number(Param.serial_number), m_nodeid(Param.nodeid)
+{
+    HANDLE keyhandle = nullptr;
+    unsigned int error_code;
+    if (CreateDeviceKeyHandle(Param.actuator, Param.protocol, Param.interface, Param.nodeid, Param.serial_number, &keyhandle)){
+        memcpy(m_keyhandle, keyhandle, sizeof(keyhandle));
+    }
+    else{
+        std::cout << "Device not found, Actuator:" << Param.actuator << ", Protocol:" << Param.protocol << ", Interface:" << ", Serial Number: " << Param.serial_number << std::endl;
+        return;
+    }
 
-CEpos::CEpos(const std::string actuator, const std::string protocol, const std::string interface, 
-             const int id, const std::string serial_number, const std::string mode, const bool clear_fault){
+    if (Param.mode == "profile_velocity"){
+        m_OperationMode = PROFILE_VELOCITY_MODE;
+    }
+    else if (Param.mode == "profile_position"){
+        m_OperationMode = PROFILE_POSITION_MODE;
+    }
 
+    if (Param.clear_fault){
+        VCS_ClearFault(m_keyhandle, m_nodeid, &error_code);
+    }
+}
 
+CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
+          m_keyhandle(keyhandle), m_device_name(Param.actuator), m_serial_number(Param.serial_number), m_nodeid(Param.nodeid)
+{
+    unsigned int error_code;
+
+    if (Param.mode == "profile_velocity"){
+        m_OperationMode = PROFILE_VELOCITY_MODE;
+    }
+    else if (Param.mode == "profile_position"){
+        m_OperationMode = PROFILE_POSITION_MODE;
+    }
+
+    if (Param.clear_fault){
+        if (!VCS_ClearFault(m_keyhandle, m_nodeid, &error_code)){
+
+        }
+    }
 
 }
 

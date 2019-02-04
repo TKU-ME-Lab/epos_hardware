@@ -5,7 +5,6 @@
 CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string> motor_names):m_private_nh(pnh)
 {    
     ROS_INFO("CEposHardware Init");
-    // std::map<std::string, boost::shared_ptr<CEpos> > motors;
     
     std::vector<EposParameter> Params;
 
@@ -38,46 +37,29 @@ CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string
                         ROS_INFO_STREAM("Node ID: " + ss.str());
                         
                         if (motor_config_nh.getParam("serial_number", Param.serial_number)){
-                            if (motor_config_nh.getParam("is_sub_device", is_sub_device)){
-                                if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                    ROS_WARN("No operation_mode in parameters");
-                                }
-
-                                if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                    ROS_WARN("No operation_mode in parameters");
+                            if (motor_config_nh.getParam("is_sub_device", Param.is_sub_device)){
+                                if (Param.is_sub_device){
+                                    if (!motor_config_nh.getParam("master_device", Param.master_device)){
+                                        ROS_WARN_STREAM("Param is_sub_device: true, but didn't have master device in params." );
+                                    }
                                 }
                             }
+
+                            if (!motor_config_nh.getParam("operation_mode", Param.mode)){
+                                ROS_WARN("No operation_mode in parameters");
+                            }
+                            
+                            if (!motor_config_nh.getParam("clear_fault", Param.clear_fault)){
+                                ROS_WARN("No clear_fault in parameters");
+                            }
+
+                            Params.push_back(Param);
+                            ROS_INFO_STREAM("---------------------------------------------------------------------------");
                         }
                     }
                 }
             }
         }
-
-        // if (motor_config_nh.getParam("is_sub_device", is_sub_device)){
-        //     if (!is_sub_device){
-        //         if (motor_config_nh.getParam("actuator", actuator_name)){
-        //             if (motor_config_nh.getParam("protocol", protocol)){
-        //                 if (motor_config_nh.getParam("interface", interface)){
-        //                     if (motor_config_nh.getParam("node_id", id)){
-        //                         if (!motor_config_nh.getParam("serial_number", serial_number)){
-        //                             ROS_WARN_STREAM("Device: " << motor_name << "- Didn't have serial_number parameter.");
-        //                         }
-        //                         if (!motor_config_nh.getParam("profile_mode", profile_mode)){
-        //                             ROS_WARN_STREAM("Device: " << motor_name << "- Didn't have profile_mode parameter.");
-        //                         }
-        //                         // if (!motor_config_nh.getParam("clear_fault", clear_faults)){
-        //                         //     ROS_WARN_STREAM("Device: " << motor_name << "- Didn't have clear_faults parameter.");
-        //                         // }
-        //                         //boost::shared_ptr<CEpos> motor(new CEpos())
-                                
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-
     }
 }
 
