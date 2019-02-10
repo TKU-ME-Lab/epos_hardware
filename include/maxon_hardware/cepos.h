@@ -1,6 +1,17 @@
 #include "maxon_hardware/Definitions.h"
 #include "maxon_hardware/util.h"
 
+#define STATUSWORD(b, v) ((v >> b) & 1)
+#define READY_TO_SWITCH_ON    (0)
+#define SWITCHED_ON           (1)
+#define ENABLE                (2)
+#define FAULT                 (3)
+#define VOLTAGE_ENABLED       (4)
+#define QUICK_STOP            (5)
+#define WARNING               (7)
+#define TARGET_REACHED        (10)
+#define CURRENT_LIMIT_ACTIVE  (11)
+
 typedef struct{
     std::string motor_name;
     std::string actuator;
@@ -15,12 +26,12 @@ typedef struct{
 }EposParameter;
 
 class CEpos {
-    typedef enum{
-        PROFILE_POSITION_MODE = 1,
-        PROFILE_VELOCITY_MODE = 3
-    } OperationMode;
+typedef enum{
+    PROFILE_POSITION_MODE = 1,
+    PROFILE_VELOCITY_MODE = 3
+} OperationMode;
     
-    typedef void* HANDLE;
+typedef void* HANDLE;
 
 private:
     HANDLE m_keyhandle;
@@ -58,7 +69,13 @@ public:
     void write();
     void read();
 
+    HANDLE GetHANDLE() {return m_keyhandle;}
+
     std::string device_name() {return m_device_name;}
+    std::string serial_number() {return m_serial_number;}
+    unsigned int GetID() {return m_nodeid;}
+
+    unsigned short statusword() {return m_statusword;}
 
     double* GetPosition();
     double* GetPositionCmd();

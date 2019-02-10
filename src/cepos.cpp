@@ -45,7 +45,6 @@ CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
 
         }
     }
-
 }
 
 CEpos::~CEpos(){

@@ -16,4 +16,7 @@ public:
 
     MapMotor GetMotors();
 
+    void read();
+    void write();
+    
 };

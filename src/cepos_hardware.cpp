@@ -3,8 +3,41 @@
 #include <boost/utility.hpp>
 #include <string>
 
-CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string> motor_names):m_private_nh(pnh)
+CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const std::vector<std::string> motor_names):
+                            m_nh(nh), m_private_nh(pnh)
 {        
+    try{
+        m_transmission_loader.reset(new transmission_interface::TransmissionInterfaceLoader(this, &m_robot_transmissions));
+    }
+    catch (const std::invalid_argument& ex){
+        ROS_ERROR_STREAM("Failed to create transmission interface loader. " << ex.what());
+        return;
+    }
+    catch(...){
+        ROS_ERROR_STREAM("Failed to create transmission interface loader. ");
+        return;
+    }
+
+    registerInterface(&m_asi);
+    registerInterface(&m_api);
+    registerInterface(&m_avi);
+
+    std::string urdf_string;
+    nh.getParam("robot_description", urdf_string);
+    while (urdf_string.empty() && ros::ok()){
+        ROS_INFO_STREAM_ONCE("Waiting for robot_description");
+        nh.getParam("robot_description", urdf_string);
+        ros::Duration(0.1).sleep();
+    }
+
+    transmission_interface::TransmissionParser parser;
+    std::vector<transmission_interface::TransmissionInfo> infos;
+    // TODO: throw exception
+    if (!parser.parse(urdf_string, infos)) {
+        ROS_ERROR("Error parsing URDF");
+        return;
+    }
+
     std::vector<EposParameter> Params;
 
     BOOST_FOREACH(const std::string &motor_name, motor_names){
@@ -72,6 +105,7 @@ CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string
         }
     }    
 
+    m_EposManager = new CEposManager(Params);
     
     for (MapMotor::iterator motor_iterator = m_EposManager->GetMotors().begin(); motor_iterator != m_EposManager->GetMotors().end(); motor_iterator++){
         boost::shared_ptr<CEpos> pEpos(motor_iterator->second);
@@ -83,6 +117,133 @@ CEposHardware::CEposHardware(ros::NodeHandle &pnh, const std::vector<std::string
         m_asi.registerHandle(position_handle);
         hardware_interface::ActuatorHandle velocity_handle(statehandle, pEpos->GetVelocityCmd());
         m_asi.registerHandle(velocity_handle);
+
+        diagnostic_updater::Updater updater(m_nh, m_private_nh);
+        updater.setHardwareID(pEpos->serial_number());
+
+    }
+    
+    BOOST_FOREACH(const transmission_interface::TransmissionInfo& info, infos) {
+        bool found_some = false;
+        bool found_all = true;
+        BOOST_FOREACH(const transmission_interface::ActuatorInfo& actuator, info.actuators_) {
+            std::vector<std::string> motor_names;
+            for (MapMotor::iterator motor_iterator = m_EposManager->GetMotors().begin(); motor_iterator != m_EposManager->GetMotors().end(); motor_iterator++){
+                std::string motor_name(motor_iterator->first);
+                motor_names.push_back(motor_name);
+            }
+            if(std::find(motor_names.begin(), motor_names.end(), actuator.name_) != motor_names.end())
+	            found_some = true;
+            else
+	            found_all = false;
+        }
+
+        if(found_all) {
+            if (!m_transmission_loader->load(info)) {
+                ROS_ERROR_STREAM("Error loading transmission: " << info.name_);
+            return;
+        }
+        else
+            ROS_INFO_STREAM("Loaded transmission: " << info.name_);
+        }
+        else if(found_some){
+            ROS_ERROR_STREAM("Do not support transmissions that contain only some EPOS actuators: " << info.name_);
+        }
     }
 }
 
+void CEposHardware::read(){
+    m_EposManager->read();
+    if (m_robot_transmissions.get<transmission_interface::ActuatorToJointStateInterface>()){
+        m_robot_transmissions.get<transmission_interface::ActuatorToJointStateInterface>()->propagate();
+    }
+}
+
+void CEposHardware::write(){
+    m_EposManager->write();
+    if (m_robot_transmissions.get<transmission_interface::JointToActuatorVelocityInterface>()){
+        m_robot_transmissions.get<transmission_interface::JointToActuatorVelocityInterface>()->propagate();
+    }
+    if (m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()){
+        m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()->propagate();
+    }
+}
+
+CMotorStatus::CMotorStatus(boost::shared_ptr<CEpos> pMotor)
+{
+    m_motor = pMotor;
+}
+
+void CMotorStatus::Statusword(diagnostic_updater::DiagnosticStatusWrapper &stat)
+{
+    stat.add("Actuator Name", m_motor->device_name());
+    unsigned int error_code;
+    
+    const unsigned short statusword = m_motor->statusword();
+
+    bool enabled = STATUSWORD(READY_TO_SWITCH_ON, statusword) && STATUSWORD(SWITCHED_ON, statusword) && STATUSWORD(ENABLE, statusword);
+    if(enabled) {
+        stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Enabled");
+    }
+    else {
+        stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Disabled");
+    }
+
+    // Quickstop is enabled when bit is unset (only read quickstop when enabled)
+    if(!STATUSWORD(QUICK_STOP, statusword) && enabled) {
+        stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::WARN, "Quickstop");
+    }
+
+    if(STATUSWORD(WARNING, statusword)) {
+        stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::WARN, "Warning");
+    }
+
+    if(STATUSWORD(FAULT, statusword)) {
+        stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::ERROR, "Fault");
+    }   
+
+    stat.add<bool>("Enabled", STATUSWORD(ENABLE, statusword));
+    stat.add<bool>("Fault", STATUSWORD(FAULT, statusword));
+    stat.add<bool>("Voltage Enabled", STATUSWORD(VOLTAGE_ENABLED, statusword));
+    stat.add<bool>("QuicK Stop", STATUSWORD(QUICK_STOP, statusword));
+    stat.add<bool>("Warning", STATUSWORD(WARNING, statusword));
+
+    unsigned char num_errors;
+    if(VCS_GetNbOfDeviceError(m_motor->GetHANDLE(), m_motor->GetID(), &num_errors, &error_code)) {
+        for(int i = 1; i<= num_errors; ++i) {
+	        unsigned int error_number;
+	        if(VCS_GetDeviceErrorCode(m_motor->GetHANDLE(), m_motor->GetID(), i, &error_number, &error_code)) {
+	            std::stringstream error_msg;
+	            error_msg << "EPOS Device Error: 0x" << std::hex << error_number;
+	            stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::ERROR, error_msg.str());
+	        }
+	        else {
+	            std::string error_str;
+	            if(GetErrorInfo(error_code, &error_str)) {
+	                std::stringstream error_msg;
+	                error_msg << "Could not read device error: " << error_str;
+	                stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::ERROR, error_msg.str());
+	            }
+	            else {
+	                stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::ERROR, "Could not read device error");
+	            }
+	        }
+        }
+    }
+    else {
+        std::string error_str;
+        if(GetErrorInfo(error_code, &error_str)) {
+	        std::stringstream error_msg;
+	        error_msg << "Could not read device errors: " << error_str;
+        	stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::ERROR, error_msg.str());
+        }
+        else {
+	        stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::ERROR, "Could not read device errors");
+        }
+    }
+}
+
+void CMotorStatus::OutputStatus(diagnostic_updater::DiagnosticStatusWrapper &stat)
+{
+
+}
