@@ -29,7 +29,7 @@ bool CEposManager::init(){
     bool has_init = false;
     for (MapMotor::iterator motor_iter = m_motors.begin(); motor_iter != m_motors.end(); motor_iter++)
     {
-        has_init = motor_iter->second->init();
+        has_init = motor_iter->second->hasInit();
     }
 
     return has_init;

@@ -12,6 +12,19 @@
 #define TARGET_REACHED        (10)
 #define CURRENT_LIMIT_ACTIVE  (11)
 
+typedef struct
+{
+    unsigned int velocity;
+    unsigned int acceleration;
+    unsigned int deceleration;
+}PositionProfile;
+
+typedef struct
+{
+    unsigned int acceleration;
+    unsigned int deceleration;
+}VelocityProfile;
+
 typedef struct{
     std::string motor_name;
     std::string actuator;
@@ -25,21 +38,7 @@ typedef struct{
     std::string master_device;
 
     //Profile config
-    typedef struct
-    {
-        unsigned int velocity;
-        unsigned int acceleration;
-        unsigned int deceleration;
-    }PositionProfile;
-
     PositionProfile position_profile;
-
-    typedef struct
-    {
-        unsigned int acceleration;
-        unsigned int deceleration;
-    }VelocityProfile;
-
     VelocityProfile velocity_profile;
 
 }EposParameter;
@@ -96,7 +95,8 @@ public:
 
     OperationMode GetMode() {return m_OperationMode;}
     unsigned short statusword() {return m_statusword;}
-    
+    bool hasInit() {return m_has_init;}
+
     double GetPosition() {return m_position;}
     double GetPositionCmd() {return m_position_cmd;}
     double GetVelocity() {return m_velocity;}
