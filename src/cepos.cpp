@@ -6,9 +6,9 @@
 CEpos::CEpos(const EposParameter Param):
              m_device_name(Param.actuator), m_serial_number(Param.serial_number), m_nodeid(Param.nodeid)
 {
-    HANDLE keyhandle = nullptr;
+    HANDLE keyhandle;
     unsigned int error_code;
-    if (CreateDeviceKeyHandle(Param.actuator, Param.protocol, Param.interface, Param.nodeid, Param.serial_number, &keyhandle)){
+    if (CreateDeviceKeyHandle(m_device_name, Param.protocol, Param.interface, m_nodeid, m_serial_number, &keyhandle)){
         memcpy(m_keyhandle, keyhandle, sizeof(keyhandle));
     }
     else{
@@ -18,13 +18,29 @@ CEpos::CEpos(const EposParameter Param):
 
     if (Param.mode == "profile_velocity"){
         m_OperationMode = PROFILE_VELOCITY_MODE;
+
+        if (VCS_ActivateProfileVelocityMode(m_keyhandle, m_nodeid, &error_code)){
+            if (!VCS_SetVelocityProfile(m_keyhandle, m_nodeid, Param.velocity_profile.acceleration, Param.velocity_profile.deceleration, &error_code)){
+                std::cout << "Failed to Set Velocity Profile" << ", Error Code:" << (char)error_code << std::endl;
+            }
+        }
     }
     else if (Param.mode == "profile_position"){
         m_OperationMode = PROFILE_POSITION_MODE;
-    }
 
+        if (VCS_ActivateProfilePositionMode(m_keyhandle, m_nodeid, &error_code)){
+            if (!VCS_SetPositionProfile(m_keyhandle, m_nodeid, Param.position_profile.velocity, Param.velocity_profile.acceleration, Param.velocity_profile.deceleration, &error_code)){
+                std::cout << "Failed to Set Position Profile"  << ", Error Code:" << (char)error_code << std::endl;
+            }
+        }
+    }
+    
     if (Param.clear_fault){
         VCS_ClearFault(m_keyhandle, m_nodeid, &error_code);
+    }
+
+    if (!VCS_SetEnableState(m_keyhandle, m_nodeid, &error_code)){
+        m_has_init = false;
     }
 }
 
@@ -114,22 +130,22 @@ void CEpos::read(){
     m_effort = m_current * m_torque_constant;
 }
 
-double* CEpos::GetPosition(){
+double* CEpos::GetPositionPtr(){
     return &m_position;
 }
 
-double* CEpos::GetPositionCmd(){
+double* CEpos::GetPositionCmdPtr(){
     return &m_position_cmd;
 }
 
-double* CEpos::GetVelocity(){
+double* CEpos::GetVelocityPtr(){
     return &m_velocity;
 }
 
-double* CEpos::GetVelocityCmd(){
+double* CEpos::GetVelocityCmdPtr(){
     return &m_velocity_cmd;
 }
 
-double* CEpos::GetEffort(){
+double* CEpos::GetEffortPtr(){
     return &m_effort;
 }

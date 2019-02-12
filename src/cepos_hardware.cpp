@@ -4,7 +4,7 @@
 #include <string>
 
 CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const std::vector<std::string> motor_names):
-                            m_nh(nh), m_private_nh(pnh)
+                            m_nh(nh), m_private_nh(pnh), m_updater(nh, pnh)
 {        
     try{
         m_transmission_loader.reset(new transmission_interface::TransmissionInterfaceLoader(this, &m_robot_transmissions));
@@ -76,6 +76,52 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
                             if (!motor_config_nh.getParam("clear_fault", Param.clear_fault)){
                                 ROS_WARN("No clear_fault in parameters");
                             }
+                            
+                            if (!motor_config_nh.hasParam("position_profile")){
+                                ros::NodeHandle position_profile_nh(motor_config_nh, "position_profile");
+                                int _velocity;
+                                int _acceleration;
+                                int _deceleration;
+                                if (position_profile_nh.getParam("velocity", _velocity)){
+                                    Param.position_profile.velocity = (unsigned int)_velocity;
+                                }
+                                else{
+                                    ROS_WARN("Didn't have velocity in position_profile");
+                                }
+
+                                if (position_profile_nh.getParam("acceleration", _acceleration)){
+                                    Param.position_profile.acceleration = (unsigned int)_acceleration;
+                                }
+                                else{
+                                    ROS_WARN("Didn't have acceleration in position_profile");
+                                }
+
+                                if (position_profile_nh.getParam("deceleration", _deceleration)){
+                                    Param.position_profile.deceleration = (unsigned int)_deceleration;
+                                }
+                                else{
+                                    ROS_WARN("Didn't have deceleration in position_profile");
+                                }
+                            }
+
+                            if (!motor_config_nh.hasParam("velocity_profile")){
+                                ros::NodeHandle velocity_profile_nh(motor_config_nh, "velocity_profile");
+                                int _acceleration;
+                                int _deceleration;
+                                if (velocity_profile_nh.getParam("acceleration", _acceleration)){
+                                    Param.velocity_profile.acceleration = (unsigned int)_acceleration;
+                                }
+                                else{
+                                    ROS_WARN("Didn't have acceleration in velocity_profile");
+                                }
+
+                                if (velocity_profile_nh.getParam("deceleration", _deceleration)){
+                                    Param.velocity_profile.deceleration = (unsigned int)_deceleration;
+                                }
+                                else{
+                                    ROS_WARN("Didn't have deceleration in velocity_profile");
+                                }
+                            }
 
                             Params.push_back(Param);
                         }
@@ -110,17 +156,23 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
     for (MapMotor::iterator motor_iterator = m_EposManager->GetMotors().begin(); motor_iterator != m_EposManager->GetMotors().end(); motor_iterator++){
         boost::shared_ptr<CEpos> pEpos(motor_iterator->second);
         
-        hardware_interface::ActuatorStateHandle statehandle(pEpos->device_name(), pEpos->GetPosition(), pEpos->GetVelocity(), pEpos->GetEffort());
+        hardware_interface::ActuatorStateHandle statehandle(pEpos->device_name(), pEpos->GetPositionPtr(), pEpos->GetVelocityPtr(), pEpos->GetEffortPtr());
         m_asi.registerHandle(statehandle);
 
-        hardware_interface::ActuatorHandle position_handle(statehandle, pEpos->GetPositionCmd());
+        hardware_interface::ActuatorHandle position_handle(statehandle, pEpos->GetPositionCmdPtr());
         m_asi.registerHandle(position_handle);
-        hardware_interface::ActuatorHandle velocity_handle(statehandle, pEpos->GetVelocityCmd());
+        hardware_interface::ActuatorHandle velocity_handle(statehandle, pEpos->GetVelocityCmdPtr());
         m_asi.registerHandle(velocity_handle);
 
-        diagnostic_updater::Updater updater(m_nh, m_private_nh);
-        updater.setHardwareID(pEpos->serial_number());
-
+        CMotorStatus* MotorStatus = new CMotorStatus(pEpos);
+        m_updater.setHardwareID(pEpos->serial_number());
+        std::stringstream ss;
+        ss << motor_iterator->first << " (Status Word): ";
+        m_updater.add(ss.str(), boost::bind(&CMotorStatus::Statusword, MotorStatus, _1));
+        ss.clear();
+        ss << motor_iterator->first << " (Output Status): ";
+        m_updater.add(ss.str(), boost::bind(&CMotorStatus::OutputStatus, MotorStatus, _1));
+        m_MotorStatus.push_back(MotorStatus);
     }
     
     BOOST_FOREACH(const transmission_interface::TransmissionInfo& info, infos) {
@@ -152,6 +204,10 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
     }
 }
 
+bool CEposHardware::init(){
+    return m_EposManager->init();
+}
+
 void CEposHardware::read(){
     m_EposManager->read();
     if (m_robot_transmissions.get<transmission_interface::ActuatorToJointStateInterface>()){
@@ -167,6 +223,10 @@ void CEposHardware::write(){
     if (m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()){
         m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()->propagate();
     }
+}
+
+void CEposHardware::update_diagnostics(){
+    m_updater.update();
 }
 
 CMotorStatus::CMotorStatus(boost::shared_ptr<CEpos> pMotor)
@@ -245,5 +305,40 @@ void CMotorStatus::Statusword(diagnostic_updater::DiagnosticStatusWrapper &stat)
 
 void CMotorStatus::OutputStatus(diagnostic_updater::DiagnosticStatusWrapper &stat)
 {
+    std::string operation_mode_str;
+    const unsigned short statusword = m_motor->statusword();
+    if(m_motor->GetMode() == PROFILE_POSITION_MODE) {
+        operation_mode_str = "Profile Position Mode";
+        stat.add("Commanded Position", boost::lexical_cast<std::string>(m_motor->GetPositionCmd()) + " rotations");
+    }
+    else if(m_motor->GetMode() == PROFILE_VELOCITY_MODE) {
+        operation_mode_str = "Profile Velocity Mode";
+        stat.add("Commanded Velocity", boost::lexical_cast<std::string>(m_motor->GetVelocityCmd()) + " rpm");
+    }
+    else {
+        operation_mode_str = "Unknown Mode";
+    }
+    stat.add("Operation Mode", operation_mode_str);
+    double nominalcurrent = m_motor->GetNominalCurrent();
+    stat.add("Nominal Current", boost::lexical_cast<std::string>(nominalcurrent) + " A");
+    stat.add("Max Current", boost::lexical_cast<std::string>(m_motor->GetMaxCurrent()) + " A");
 
+    unsigned int error_code;
+    stat.add("Position", boost::lexical_cast<std::string>(m_motor->GetPosition()) + " rotations");
+    stat.add("Velocity", boost::lexical_cast<std::string>(m_motor->GetVelocity()) + " rpm");
+    stat.add("Torque", boost::lexical_cast<std::string>(m_motor->GetEffort()) + " Nm");
+    double current = m_motor->GetCurrent();
+    stat.add("Current", boost::lexical_cast<std::string>(current) + " A");
+
+
+    stat.add<bool>("Target Reached", STATUSWORD(TARGET_REACHED, statusword));
+    stat.add<bool>("Current Limit Active", STATUSWORD(CURRENT_LIMIT_ACTIVE, statusword));
+
+
+    stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "EPOS operating in " + operation_mode_str);
+    if(STATUSWORD(CURRENT_LIMIT_ACTIVE, statusword))
+        stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::WARN, "Current Limit Active");
+    if(nominalcurrent > 0 && std::abs(current) > nominalcurrent) {
+        stat.mergeSummaryf(diagnostic_msgs::DiagnosticStatus::WARN, "Nominal Current Exceeded (Current: %f A)", current);
+    }
 }

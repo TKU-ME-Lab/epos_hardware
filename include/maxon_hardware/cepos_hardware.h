@@ -12,7 +12,6 @@
 #include "maxon_hardware/cepos_manager.h"
 
 class CMotorStatus{
-
 private:
     boost::shared_ptr<CEpos> m_motor;
 
@@ -21,7 +20,6 @@ public:
 
     void Statusword(diagnostic_updater::DiagnosticStatusWrapper&);
     void OutputStatus(diagnostic_updater::DiagnosticStatusWrapper&);
-
 };    
 
 class CEposHardware : public hardware_interface::RobotHW {
@@ -40,10 +38,13 @@ private:
 
     boost::scoped_ptr<transmission_interface::TransmissionInterfaceLoader> m_transmission_loader;
 
-    std::vector<diagnostic_updater::Updater> m_updaters;
+    diagnostic_updater::Updater m_updater;
+    std::vector<CMotorStatus*> m_MotorStatus;
 
 public:
     CEposHardware(ros::NodeHandle&, ros::NodeHandle&, const std::vector<std::string>);
+
+    bool init();
 
     void read();
     void write();

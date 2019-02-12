@@ -123,17 +123,23 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(Epos_util
+add_library(epos_util
     src/util.cpp
 )
 
+add_library(cepos 
+  src/cepos.cpp
+)
+
 add_library(cepos_manager
-    src/cepos_manager.cpp
+  src/cepos_manager.cpp
 )
 
 add_library(cepos_hardware
-    src/cepos_hardware.cpp
+  src/cepos_hardware.cpp
 )
+
+add_executable(epos_hardware_node src/epos_hardware_node.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -157,25 +163,43 @@ add_executable(maxon_test src/test.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-#target_link_libraries(epos_manager
-#   ${catkin_LIBRARIES}
-#   EposCmd
-#)
 
-target_link_libraries(Epos_util
-   ${catkin_LIBRARIES}
-   EposCmd
+
+target_link_libraries(epos_util
+  ${catkin_LIBRARIES}
+  EposCmd
+)
+
+target_link_libraries(cepos
+  ${catkin_LIBRARIES}
+  EposCmd
+  epos_util
+)
+
+target_link_libraries(cepos_manager
+  ${catkin_LIBRARIES}
+  EposCmd
+  cepos
 )
 
 target_link_libraries(cepos_hardware
-   ${catkin_LIBRARIES}
-   EposCmd
+  ${catkin_LIBRARIES}
+  epos_util
+  cepos
+  cepos_manager
+)
+
+target_link_libraries(epos_hardware_node
+  ${catkin_LIBRARIES}
+  EposCmd
+  epos_util
+  cepos_hardware
 )
 
 target_link_libraries(maxon_test
   ${catkin_LIBRARIES}
   EposCmd
-  Epos_util
+  epos_util
 )
 
 #############

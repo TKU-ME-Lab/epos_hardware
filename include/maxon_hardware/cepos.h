@@ -23,14 +23,33 @@ typedef struct{
     bool clear_fault;
     bool is_sub_device;
     std::string master_device;
+
+    //Profile config
+    typedef struct
+    {
+        unsigned int velocity;
+        unsigned int acceleration;
+        unsigned int deceleration;
+    }PositionProfile;
+
+    PositionProfile position_profile;
+
+    typedef struct
+    {
+        unsigned int acceleration;
+        unsigned int deceleration;
+    }VelocityProfile;
+
+    VelocityProfile velocity_profile;
+
 }EposParameter;
 
-class CEpos {
 typedef enum{
     PROFILE_POSITION_MODE = 1,
     PROFILE_VELOCITY_MODE = 3
 } OperationMode;
-    
+
+class CEpos {   
 typedef void* HANDLE;
 
 private:
@@ -54,6 +73,7 @@ private:
     
     bool m_halt_velocity;
 
+    std::string motor_type;
     double m_torque_constant;
     double m_nominal_current;
     double m_max_current;
@@ -65,7 +85,6 @@ public:
     CEpos(const EposParameter, const HANDLE);
     ~CEpos();
 
-    bool init();
     void write();
     void read();
 
@@ -75,13 +94,24 @@ public:
     std::string serial_number() {return m_serial_number;}
     unsigned int GetID() {return m_nodeid;}
 
+    OperationMode GetMode() {return m_OperationMode;}
     unsigned short statusword() {return m_statusword;}
+    
+    double GetPosition() {return m_position;}
+    double GetPositionCmd() {return m_position_cmd;}
+    double GetVelocity() {return m_velocity;}
+    double GetVelocityCmd() {return m_velocity_cmd;}
+    double GetCurrent() {return m_current;}
+    double GetEffort() {return m_effort;}
+    double GetNominalCurrent() {return m_nominal_current;}
+    double GetMaxCurrent() {return m_max_current;}
 
-    double* GetPosition();
-    double* GetPositionCmd();
-    double* GetVelocity();
-    double* GetVelocityCmd();
-    double* GetEffort();
+
+    double* GetPositionPtr();
+    double* GetPositionCmdPtr();
+    double* GetVelocityPtr();
+    double* GetVelocityCmdPtr();
+    double* GetEffortPtr();
     
 };
 

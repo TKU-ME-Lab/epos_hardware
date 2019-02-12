@@ -8,21 +8,6 @@ forward_left_motor:
   operation_mode: 'profile_velocity'
   clear_fault: true
 
-  motor:
-    type: 1
-    dc_motor:
-      nominal_current: 4.26
-      max_output_current: 69.3
-      thermal_time_constant: 43.9
-  sensor:
-    type: 1
-    incremental_encoder:
-      resolution: 500
-      inverted_polarity: false
-  safety:
-    max_following_error: 2000
-    max_profile_velocity: 7000
-    max_acceleration: 97295
   position_profile:
     velocity: 589
     acceleration: 46319
@@ -30,19 +15,6 @@ forward_left_motor:
   velocity_profile:
     acceleration: 46319
     deceleration: 46319
-  position_regulator:
-    gain:
-        p:527
-        i:1767
-        d:838
-  veloctiy_regulator:
-    gain:
-        p:2235
-        i:83
-  current_regulator:
-    gain:
-        p:268
-        i:83
 
 forward_right_motor:
   actuator: 'EPOS2'
