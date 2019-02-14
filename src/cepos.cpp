@@ -6,13 +6,14 @@
 CEpos::CEpos(const EposParameter Param):
              m_device_name(Param.actuator), m_serial_number(Param.serial_number), m_nodeid(Param.nodeid)
 {
-    HANDLE keyhandle;
+    std::cout << "    Init Epos" << std::endl;
+
     unsigned int error_code;
-    if (CreateDeviceKeyHandle(m_device_name, Param.protocol, Param.interface, m_nodeid, m_serial_number, &keyhandle)){
-        memcpy(m_keyhandle, keyhandle, sizeof(keyhandle));
+    if (CreateDeviceKeyHandle(m_device_name, Param.protocol, Param.interface, m_nodeid, m_serial_number, &m_keyhandle)){
+        std::cout << "    Got Key Handle" << std::endl;
     }
     else{
-        std::cout << "Device not found, Actuator:" << Param.actuator << ", Protocol:" << Param.protocol << ", Interface:" << ", Serial Number: " << Param.serial_number << std::endl;
+        std::cout << "    Device not found, Actuator:" << Param.actuator << ", Protocol:" << Param.protocol << ", Interface:" << ", Serial Number: " << Param.serial_number << std::endl;
         return;
     }
 
@@ -44,6 +45,7 @@ CEpos::CEpos(const EposParameter Param):
     }
 
     m_has_init = true;
+    std::cout << "    Init Epos done" << std::endl;
 }
 
 CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):

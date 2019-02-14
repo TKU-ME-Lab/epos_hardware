@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<robot name="example">
+
+  <link name="base">
+    <inertial>
+        <mass value="1"/>
+        <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <link name="link2">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  
+  <link name="link3">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <link name="link4">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  
+  <joint name="test_joint1" type="revolute">
+    <parent link="base"/>
+    <child link="link1"/>
+  </joint>
+
+  <transmission name="test_joint1_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="test_joint1">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="forward_left_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="test_joint2" type="revolute">
+    <parent link="base"/>
+    <child link="link2"/>
+  </joint>
+
+  <transmission name="test_joint2_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="test_joint2">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="forward_right_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="test_joint3" type="revolute">
+    <parent link="base"/>
+    <child link="link3"/>
+  </joint>
+
+  <transmission name="test_joint3_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="test_joint3">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="backward_left_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="test_joint4" type="revolute">
+    <parent link="base"/>
+    <child link="link4"/>
+  </joint>
+
+  <transmission name="test_joint4_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="test_joint3">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="backward_right_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+
+</robot>

@@ -8,9 +8,6 @@ private:
     MapMotor m_motors;
     //MapMotor m_motors;
 
-
-
-
 public:
     CEposManager(std::vector<EposParameter>);
 

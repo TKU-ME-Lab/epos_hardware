@@ -26,6 +26,14 @@ forward_right_motor:
   operation_mode: 'profile_velocity'
   clear_fault: true
 
+  position_profile:
+    velocity: 589
+    acceleration: 46319
+    deceleration: 46319
+  velocity_profile:
+    acceleration: 46319
+    deceleration: 46319
+
 backward_left_motor:
   actuator: 'EPOS2'
   serial_number: '602079023838'
@@ -36,6 +44,14 @@ backward_left_motor:
   operation_mode: 'profile_velocity'
   clear_fault: true
 
+  position_profile:
+    velocity: 589
+    acceleration: 46319
+    deceleration: 46319
+  velocity_profile:
+    acceleration: 46319
+    deceleration: 46319
+
 backward_right_motor:
   actuator: 'EPOS2'
   serial_number: '602079024057'
@@ -45,3 +61,11 @@ backward_right_motor:
   node_id: 4
   operation_mode: 'profile_velocity'
   clear_fault: true
+
+  position_profile:
+    velocity: 589
+    acceleration: 46319
+    deceleration: 46319
+  velocity_profile:
+    acceleration: 46319
+    deceleration: 46319

@@ -20,9 +20,9 @@ int main(int argc, char** argv){
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
-    if (robot.init()){
+    if (!robot.init()){
         ROS_FATAL("Failed to initializer motors");
-        return 1;
+        return 0;
     }
 
     ros::Rate controller_rate(50);
@@ -36,4 +36,6 @@ int main(int argc, char** argv){
         robot.update_diagnostics();
         controller_rate.sleep();
     }
+
+    return 1;
 }

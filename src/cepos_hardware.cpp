@@ -2,6 +2,7 @@
 #include <boost/foreach.hpp>
 #include <boost/utility.hpp>
 #include <string>
+#include <iostream>
 
 CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const std::vector<std::string> motor_names):
                             m_nh(nh), m_private_nh(pnh), m_updater(nh, pnh)
@@ -17,10 +18,6 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
         ROS_ERROR_STREAM("Failed to create transmission interface loader. ");
         return;
     }
-
-    registerInterface(&m_asi);
-    registerInterface(&m_api);
-    registerInterface(&m_avi);
 
     std::string urdf_string;
     nh.getParam("robot_description", urdf_string);
@@ -41,9 +38,10 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
     std::vector<EposParameter> Params;
 
     BOOST_FOREACH(const std::string &motor_name, motor_names){
-        ROS_INFO_STREAM("Get [" + motor_name + "] Parameter------------------------------------------------");
+        ROS_INFO_STREAM("Get [" + motor_name + "] Parameter");
         
         EposParameter Param;
+        Param.motor_name = motor_name;
 
         ros::NodeHandle motor_config_nh(m_private_nh, motor_name);
 
@@ -51,121 +49,194 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
             ROS_INFO_STREAM("Actuator: " + Param.actuator);
             if (motor_config_nh.getParam("protocol", Param.protocol)){
                 ROS_INFO_STREAM("Protocol: " + Param.protocol);
-                if (motor_config_nh.getParam("interface", Param.interface)){
-                    ROS_INFO_STREAM("Interface: " + Param.interface);
-                    int _nodeid = 0;
-                    if (motor_config_nh.getParam("node_id", _nodeid)){
-                        Param.nodeid = (uint16_t)_nodeid;
-                        std::stringstream ss;
-                        ss << Param.nodeid;
-                        ROS_INFO_STREAM("Node ID: " + ss.str());
-                        
-                        if (motor_config_nh.getParam("serial_number", Param.serial_number)){
-                            if (motor_config_nh.getParam("is_sub_device", Param.is_sub_device)){
-                                if (Param.is_sub_device){
-                                    if (!motor_config_nh.getParam("master_device", Param.master_device)){
-                                        ROS_WARN_STREAM("Param is_sub_device: true, but didn't have master device in params." );
+                if (motor_config_nh.getParam("is_sub_device", Param.is_sub_device)){
+                    if (!Param.is_sub_device){
+                        if (motor_config_nh.getParam("interface", Param.interface)){
+                            ROS_INFO_STREAM("Interface: " + Param.interface);
+                            int _nodeid = 0;
+                            if (motor_config_nh.getParam("node_id", _nodeid)){
+                                Param.nodeid = (uint16_t)_nodeid;
+                                std::stringstream ss;
+                                ss << Param.nodeid;
+                                ROS_INFO_STREAM("Node ID: " + ss.str());
+
+                                if (motor_config_nh.getParam("serial_number", Param.serial_number)){
+                                    if (!motor_config_nh.getParam("operation_mode", Param.mode)){
+                                    ROS_WARN("No operation_mode in parameters");
                                     }
+                                
+                                    if (!motor_config_nh.getParam("clear_fault", Param.clear_fault)){
+                                        ROS_WARN("No clear_fault in parameters");
+                                    }
+                                    
+                                    if (!motor_config_nh.hasParam("position_profile")){
+                                        ros::NodeHandle position_profile_nh(motor_config_nh, "position_profile");
+                                        int _velocity;
+                                        int _acceleration;
+                                        int _deceleration;
+                                        if (position_profile_nh.getParam("velocity", _velocity)){
+                                            Param.position_profile.velocity = (unsigned int)_velocity;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have velocity in position_profile");
+                                        }
+
+                                        if (position_profile_nh.getParam("acceleration", _acceleration)){
+                                            Param.position_profile.acceleration = (unsigned int)_acceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have acceleration in position_profile");
+                                        }
+
+                                        if (position_profile_nh.getParam("deceleration", _deceleration)){
+                                            Param.position_profile.deceleration = (unsigned int)_deceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have deceleration in position_profile");
+                                        }
+                                    }
+
+                                    if (!motor_config_nh.hasParam("velocity_profile")){
+                                        ros::NodeHandle velocity_profile_nh(motor_config_nh, "velocity_profile");
+                                        int _acceleration;
+                                        int _deceleration;
+                                        if (velocity_profile_nh.getParam("acceleration", _acceleration)){
+                                            Param.velocity_profile.acceleration = (unsigned int)_acceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have acceleration in velocity_profile");
+                                        }
+
+                                        if (velocity_profile_nh.getParam("deceleration", _deceleration)){
+                                            Param.velocity_profile.deceleration = (unsigned int)_deceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have deceleration in velocity_profile");
+                                        }
+                                    }
+
+                                    Params.push_back(Param);
                                 }
+                                else
+                                {
+                                    ROS_WARN_STREAM(motor_name + ", didn't have serial_number");
+                                    continue;
+                                }
+                                
                             }
-
-                            if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                ROS_WARN("No operation_mode in parameters");
-                            }
-                            
-                            if (!motor_config_nh.getParam("clear_fault", Param.clear_fault)){
-                                ROS_WARN("No clear_fault in parameters");
-                            }
-                            
-                            if (!motor_config_nh.hasParam("position_profile")){
-                                ros::NodeHandle position_profile_nh(motor_config_nh, "position_profile");
-                                int _velocity;
-                                int _acceleration;
-                                int _deceleration;
-                                if (position_profile_nh.getParam("velocity", _velocity)){
-                                    Param.position_profile.velocity = (unsigned int)_velocity;
-                                }
-                                else{
-                                    ROS_WARN("Didn't have velocity in position_profile");
-                                }
-
-                                if (position_profile_nh.getParam("acceleration", _acceleration)){
-                                    Param.position_profile.acceleration = (unsigned int)_acceleration;
-                                }
-                                else{
-                                    ROS_WARN("Didn't have acceleration in position_profile");
-                                }
-
-                                if (position_profile_nh.getParam("deceleration", _deceleration)){
-                                    Param.position_profile.deceleration = (unsigned int)_deceleration;
-                                }
-                                else{
-                                    ROS_WARN("Didn't have deceleration in position_profile");
-                                }
-                            }
-
-                            if (!motor_config_nh.hasParam("velocity_profile")){
-                                ros::NodeHandle velocity_profile_nh(motor_config_nh, "velocity_profile");
-                                int _acceleration;
-                                int _deceleration;
-                                if (velocity_profile_nh.getParam("acceleration", _acceleration)){
-                                    Param.velocity_profile.acceleration = (unsigned int)_acceleration;
-                                }
-                                else{
-                                    ROS_WARN("Didn't have acceleration in velocity_profile");
-                                }
-
-                                if (velocity_profile_nh.getParam("deceleration", _deceleration)){
-                                    Param.velocity_profile.deceleration = (unsigned int)_deceleration;
-                                }
-                                else{
-                                    ROS_WARN("Didn't have deceleration in velocity_profile");
-                                }
-                            }
-
-                            Params.push_back(Param);
                         }
-                        else{
-                            ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have serial_number");
+                        else
+                        {
+                            ROS_WARN_STREAM(motor_name + "is master device,but it didn't have interface");
                             continue;
                         }
+                        
                     }
-                    else{
-                        ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have node_id");
-                        continue;
-                    }
-                }
-                else{
-                    ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have interface");
-                    continue;
+                    else
+                    {
+                        if (motor_config_nh.getParam("master_device", Param.master_device)){
+                            if (motor_config_nh.getParam("serial_number", Param.serial_number)){
+                                if (!motor_config_nh.getParam("operation_mode", Param.mode)){
+                                    ROS_WARN("No operation_mode in parameters");
+                                }
+                                
+                                if (!motor_config_nh.getParam("clear_fault", Param.clear_fault)){
+                                    ROS_WARN("No clear_fault in parameters");
+                                }
+                                
+                                if (!motor_config_nh.hasParam("position_profile")){
+                                    ros::NodeHandle position_profile_nh(motor_config_nh, "position_profile");
+                                    int _velocity;
+                                    int _acceleration;
+                                    int _deceleration;
+                                    if (position_profile_nh.getParam("velocity", _velocity)){
+                                        Param.position_profile.velocity = (unsigned int)_velocity;
+                                    }
+                                    else{
+                                        ROS_WARN("Didn't have velocity in position_profile");
+                                    }
+
+                                    if (position_profile_nh.getParam("acceleration", _acceleration)){
+                                        Param.position_profile.acceleration = (unsigned int)_acceleration;
+                                    }
+                                    else{
+                                        ROS_WARN("Didn't have acceleration in position_profile");
+                                    }
+
+                                    if (position_profile_nh.getParam("deceleration", _deceleration)){
+                                        Param.position_profile.deceleration = (unsigned int)_deceleration;
+                                    }
+                                    else{
+                                        ROS_WARN("Didn't have deceleration in position_profile");
+                                    }
+                                }
+
+                                if (!motor_config_nh.hasParam("velocity_profile")){
+                                    ros::NodeHandle velocity_profile_nh(motor_config_nh, "velocity_profile");
+                                    int _acceleration;
+                                    int _deceleration;
+                                    if (velocity_profile_nh.getParam("acceleration", _acceleration)){
+                                        Param.velocity_profile.acceleration = (unsigned int)_acceleration;
+                                    }
+                                    else{
+                                        ROS_WARN("Didn't have acceleration in velocity_profile");
+                                    }
+
+                                    if (velocity_profile_nh.getParam("deceleration", _deceleration)){
+                                        Param.velocity_profile.deceleration = (unsigned int)_deceleration;
+                                    }
+                                    else{
+                                        ROS_WARN("Didn't have deceleration in velocity_profile");
+                                    }
+                                }
+
+                                Params.push_back(Param);
+                            }
+                            else{
+                                ROS_WARN_STREAM(motor_name + ", didn't have serial_number");
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            ROS_WARN_STREAM("Param is_sub_device: true, but didn't have master device in params." );
+                            continue;
+                        }
+                        
+                    }   
                 }
             }
             else{
-                ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have protocol");  
+                ROS_WARN_STREAM(motor_name + ", didn't have protocol");  
                 continue;  
             }
         }
         else{
-            ROS_WARN_STREAM("Motor:" + motor_name + ", didn't have actuator");
+            ROS_WARN_STREAM(motor_name + ", didn't have actuator");
             continue;
         }
-    }    
+
+        std::cout << std::endl;
+    }
 
     m_EposManager = new CEposManager(Params);
-    
+
+    ROS_INFO("Setup Hardware Interface");
     for (MapMotor::iterator motor_iterator = m_EposManager->GetMotors().begin(); motor_iterator != m_EposManager->GetMotors().end(); motor_iterator++){
-        boost::shared_ptr<CEpos> pEpos(motor_iterator->second);
+        //boost::shared_ptr<CEpos> pEpos(motor_iterator->second);
+        ROS_INFO_STREAM(motor_iterator->first + " registerHandle");
         
-        hardware_interface::ActuatorStateHandle statehandle(pEpos->device_name(), pEpos->GetPositionPtr(), pEpos->GetVelocityPtr(), pEpos->GetEffortPtr());
+        hardware_interface::ActuatorStateHandle statehandle(motor_iterator->first, motor_iterator->second->GetPositionPtr(), motor_iterator->second->GetVelocityPtr()
+                                                            , motor_iterator->second->GetEffortPtr());
         m_asi.registerHandle(statehandle);
 
-        hardware_interface::ActuatorHandle position_handle(statehandle, pEpos->GetPositionCmdPtr());
+        hardware_interface::ActuatorHandle position_handle(statehandle, motor_iterator->second->GetPositionCmdPtr());
         m_asi.registerHandle(position_handle);
-        hardware_interface::ActuatorHandle velocity_handle(statehandle, pEpos->GetVelocityCmdPtr());
+        hardware_interface::ActuatorHandle velocity_handle(statehandle, motor_iterator->second->GetVelocityCmdPtr());
         m_asi.registerHandle(velocity_handle);
 
-        CMotorStatus* MotorStatus = new CMotorStatus(pEpos);
-        m_updater.setHardwareID(pEpos->serial_number());
+        CMotorStatus* MotorStatus = new CMotorStatus(motor_iterator->second);
+        m_updater.setHardwareID(motor_iterator->second->serial_number());
         std::stringstream ss;
         ss << motor_iterator->first << " (Status Word): ";
         m_updater.add(ss.str(), boost::bind(&CMotorStatus::Statusword, MotorStatus, _1));
@@ -174,7 +245,12 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
         m_updater.add(ss.str(), boost::bind(&CMotorStatus::OutputStatus, MotorStatus, _1));
         m_MotorStatus.push_back(MotorStatus);
     }
+
+    registerInterface(&m_asi);
+    registerInterface(&m_api);
+    registerInterface(&m_avi);
     
+    ROS_INFO("Compare Transmmision Interface");
     BOOST_FOREACH(const transmission_interface::TransmissionInfo& info, infos) {
         bool found_some = false;
         bool found_all = true;

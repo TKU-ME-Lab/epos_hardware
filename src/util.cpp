@@ -151,6 +151,8 @@ int CreateDeviceKeyHandle(std::string actuator, std::string protocol, std::strin
             }
         }
     }
+
+    return result;
 }
 
 int EnumerateDeviceKeyHandle(){
