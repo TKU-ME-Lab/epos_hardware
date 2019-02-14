@@ -6,11 +6,11 @@
                                                                          backward_right_motor" output="screen">
         <rosparam command="load" file="$(find maxon_hardware)/config/actuator_definition.yaml"/>
     </node>
-
+    <!--
     <node name ="joint_state_publisher" pkg = "joint_state_publisher" type ="joint_state_publisher"/>
     
-    <!--<node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "state_publisher"/>
-    -->
+    <node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "state_publisher"/>
+    
 
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
 	    output="screen" args="joint_state_controller velocity_controller"/>
@@ -20,5 +20,5 @@
     <param name="position_controller/joint" value="test_joint1" />
     <param name="joint_state_controller/type" value="joint_state_controller/JointStateController" />
     <param name="joint_state_controller/publish_rate" value="50" />
-
+    -->
 </launch>

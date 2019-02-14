@@ -51,6 +51,7 @@ CEpos::CEpos(const EposParameter Param):
 CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
           m_keyhandle(keyhandle), m_device_name(Param.actuator), m_serial_number(Param.serial_number), m_nodeid(Param.nodeid)
 {
+    std::cout << "    Init Epos" << std::endl;    
     unsigned int error_code;
 
     if (Param.mode == "profile_velocity"){
@@ -79,6 +80,7 @@ CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
     }
 
     m_has_init = true;
+    std::cout << "    Init Epos done" << std::endl;
 }
 
 CEpos::~CEpos(){
