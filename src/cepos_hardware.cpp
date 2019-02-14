@@ -222,12 +222,11 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
     m_EposManager = new CEposManager(Params);
 
     ROS_INFO("Setup Hardware Interface");
-    for (MapMotor::iterator motor_iterator = m_EposManager->GetMotors().begin(); motor_iterator != m_EposManager->GetMotors().end(); motor_iterator++){
-        //boost::shared_ptr<CEpos> pEpos(motor_iterator->second);
-        ROS_INFO_STREAM(motor_iterator->first + " registerHandle");
-        
+    boost::shared_ptr<MapMotor> motors(m_EposManager->GetMotorsPtr());
+    for (MapMotor::iterator motor_iterator = motors->begin(); motor_iterator != motors->end(); motor_iterator++){        
         hardware_interface::ActuatorStateHandle statehandle(motor_iterator->first, motor_iterator->second->GetPositionPtr(), motor_iterator->second->GetVelocityPtr()
                                                             , motor_iterator->second->GetEffortPtr());
+        ROS_INFO_STREAM("Create ActuatorStateHandle, Name" + statehandle.getName());
         m_asi.registerHandle(statehandle);
 
         hardware_interface::ActuatorHandle position_handle(statehandle, motor_iterator->second->GetPositionCmdPtr());

@@ -12,6 +12,7 @@ public:
     CEposManager(std::vector<EposParameter>);
 
     MapMotor GetMotors();
+    MapMotor* GetMotorsPtr() {return &m_motors;}
 
     bool init();
     void read();
