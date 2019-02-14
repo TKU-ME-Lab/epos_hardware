@@ -9,7 +9,7 @@ CEposManager::CEposManager(std::vector<EposParameter> Params){
             std::cout << "  Motor:" << Param.motor_name << std::endl;
             boost::shared_ptr<CEpos> motor(new CEpos(Param));
             std::cout << "Inserting Motor" << std::endl;
-            m_motors.insert(std::pair<std::string, boost::shared_ptr<CEpos> >(Param.motor_name, motor));
+            m_motors.insert(std::make_pair(Param.motor_name, motor));
             std::cout << "Insert " << m_motors.end()->first << std::endl;
         }
     }
@@ -21,7 +21,7 @@ CEposManager::CEposManager(std::vector<EposParameter> Params){
             std::map<std::string, boost::shared_ptr<CEpos> >::iterator iter = m_motors.find(master_device.c_str());
             
             boost::shared_ptr<CEpos> motor(new CEpos(Param, iter->second->GetHANDLE()));
-            m_motors.insert(std::pair<std::string, boost::shared_ptr<CEpos> >(Param.motor_name, motor));
+            m_motors.insert(std::make_pair(Param.motor_name, motor));
             std::cout << "Insert " << m_motors.end()->first << std::endl;
         }
     }
