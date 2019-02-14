@@ -7,7 +7,7 @@ CEposManager::CEposManager(std::vector<EposParameter> Params){
     BOOST_FOREACH(const EposParameter &Param, Params){
         if (!Param.is_sub_device){
             std::cout << "  Motor:" << Param.motor_name << std::endl;
-            boost::shared_ptr<CEpos> motor(new CEpos(Param));
+            CEpos* motor = new CEpos(Param);
             std::cout << "Inserting Motor" << std::endl;
             m_motors.insert(std::make_pair(Param.motor_name, motor));
             std::cout << "Insert " << m_motors.end()->first << std::endl;
@@ -18,9 +18,9 @@ CEposManager::CEposManager(std::vector<EposParameter> Params){
         if (Param.is_sub_device){
             std::cout << "  Motor:" << Param.motor_name << std::endl;
             std::string master_device = Param.master_device;
-            std::map<std::string, boost::shared_ptr<CEpos> >::iterator iter = m_motors.find(master_device.c_str());
+            std::map<std::string, CEpos* >::iterator iter = m_motors.find(master_device.c_str());
             
-            boost::shared_ptr<CEpos> motor(new CEpos(Param, iter->second->GetHANDLE()));
+            CEpos* motor = new CEpos(Param, iter->second->GetHANDLE());
             m_motors.insert(std::make_pair(Param.motor_name, motor));
             std::cout << "Insert " << m_motors.end()->first << std::endl;
         }

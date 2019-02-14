@@ -13,10 +13,10 @@
 
 class CMotorStatus{
 private:
-    boost::shared_ptr<CEpos> m_motor;
+    CEpos* m_pmotor;
 
 public:
-    CMotorStatus(boost::shared_ptr<CEpos>);
+    CMotorStatus(CEpos*);
 
     void Statusword(diagnostic_updater::DiagnosticStatusWrapper&);
     void OutputStatus(diagnostic_updater::DiagnosticStatusWrapper&);

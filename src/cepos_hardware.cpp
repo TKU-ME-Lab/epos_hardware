@@ -222,7 +222,7 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
     m_EposManager = new CEposManager(Params);
 
     ROS_INFO("Setup Hardware Interface");
-    boost::shared_ptr<MapMotor> motors(m_EposManager->GetMotorsPtr());
+    MapMotor* motors = m_EposManager->GetMotorsPtr();
     for (MapMotor::iterator motor_iterator = motors->begin(); motor_iterator != motors->end(); motor_iterator++){        
         hardware_interface::ActuatorStateHandle statehandle(motor_iterator->first, motor_iterator->second->GetPositionPtr(), motor_iterator->second->GetVelocityPtr()
                                                             , motor_iterator->second->GetEffortPtr());
@@ -304,17 +304,17 @@ void CEposHardware::update_diagnostics(){
     m_updater.update();
 }
 
-CMotorStatus::CMotorStatus(boost::shared_ptr<CEpos> pMotor)
+CMotorStatus::CMotorStatus(CEpos* pMotor)
 {
-    m_motor = pMotor;
+    m_pmotor = pMotor;
 }
 
 void CMotorStatus::Statusword(diagnostic_updater::DiagnosticStatusWrapper &stat)
 {
-    stat.add("Actuator Name", m_motor->device_name());
+    stat.add("Actuator Name", m_pmotor->device_name());
     unsigned int error_code;
     
-    const unsigned short statusword = m_motor->statusword();
+    const unsigned short statusword = m_pmotor->statusword();
 
     bool enabled = STATUSWORD(READY_TO_SWITCH_ON, statusword) && STATUSWORD(SWITCHED_ON, statusword) && STATUSWORD(ENABLE, statusword);
     if(enabled) {
@@ -344,10 +344,10 @@ void CMotorStatus::Statusword(diagnostic_updater::DiagnosticStatusWrapper &stat)
     stat.add<bool>("Warning", STATUSWORD(WARNING, statusword));
 
     unsigned char num_errors;
-    if(VCS_GetNbOfDeviceError(m_motor->GetHANDLE(), m_motor->GetID(), &num_errors, &error_code)) {
+    if(VCS_GetNbOfDeviceError(m_pmotor->GetHANDLE(), m_pmotor->GetID(), &num_errors, &error_code)) {
         for(int i = 1; i<= num_errors; ++i) {
 	        unsigned int error_number;
-	        if(VCS_GetDeviceErrorCode(m_motor->GetHANDLE(), m_motor->GetID(), i, &error_number, &error_code)) {
+	        if(VCS_GetDeviceErrorCode(m_pmotor->GetHANDLE(), m_pmotor->GetID(), i, &error_number, &error_code)) {
 	            std::stringstream error_msg;
 	            error_msg << "EPOS Device Error: 0x" << std::hex << error_number;
 	            stat.mergeSummary(diagnostic_msgs::DiagnosticStatus::ERROR, error_msg.str());
@@ -381,28 +381,28 @@ void CMotorStatus::Statusword(diagnostic_updater::DiagnosticStatusWrapper &stat)
 void CMotorStatus::OutputStatus(diagnostic_updater::DiagnosticStatusWrapper &stat)
 {
     std::string operation_mode_str;
-    const unsigned short statusword = m_motor->statusword();
-    if(m_motor->GetMode() == PROFILE_POSITION_MODE) {
+    const unsigned short statusword = m_pmotor->statusword();
+    if(m_pmotor->GetMode() == PROFILE_POSITION_MODE) {
         operation_mode_str = "Profile Position Mode";
-        stat.add("Commanded Position", boost::lexical_cast<std::string>(m_motor->GetPositionCmd()) + " rotations");
+        stat.add("Commanded Position", boost::lexical_cast<std::string>(m_pmotor->GetPositionCmd()) + " rotations");
     }
-    else if(m_motor->GetMode() == PROFILE_VELOCITY_MODE) {
+    else if(m_pmotor->GetMode() == PROFILE_VELOCITY_MODE) {
         operation_mode_str = "Profile Velocity Mode";
-        stat.add("Commanded Velocity", boost::lexical_cast<std::string>(m_motor->GetVelocityCmd()) + " rpm");
+        stat.add("Commanded Velocity", boost::lexical_cast<std::string>(m_pmotor->GetVelocityCmd()) + " rpm");
     }
     else {
         operation_mode_str = "Unknown Mode";
     }
     stat.add("Operation Mode", operation_mode_str);
-    double nominalcurrent = m_motor->GetNominalCurrent();
+    double nominalcurrent = m_pmotor->GetNominalCurrent();
     stat.add("Nominal Current", boost::lexical_cast<std::string>(nominalcurrent) + " A");
-    stat.add("Max Current", boost::lexical_cast<std::string>(m_motor->GetMaxCurrent()) + " A");
+    stat.add("Max Current", boost::lexical_cast<std::string>(m_pmotor->GetMaxCurrent()) + " A");
 
     unsigned int error_code;
-    stat.add("Position", boost::lexical_cast<std::string>(m_motor->GetPosition()) + " rotations");
-    stat.add("Velocity", boost::lexical_cast<std::string>(m_motor->GetVelocity()) + " rpm");
-    stat.add("Torque", boost::lexical_cast<std::string>(m_motor->GetEffort()) + " Nm");
-    double current = m_motor->GetCurrent();
+    stat.add("Position", boost::lexical_cast<std::string>(m_pmotor->GetPosition()) + " rotations");
+    stat.add("Velocity", boost::lexical_cast<std::string>(m_pmotor->GetVelocity()) + " rpm");
+    stat.add("Torque", boost::lexical_cast<std::string>(m_pmotor->GetEffort()) + " Nm");
+    double current = m_pmotor->GetCurrent();
     stat.add("Current", boost::lexical_cast<std::string>(current) + " A");
 
 

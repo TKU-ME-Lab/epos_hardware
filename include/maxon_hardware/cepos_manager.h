@@ -1,7 +1,7 @@
 #include "maxon_hardware/cepos.h"
 #include <boost/ptr_container/ptr_map.hpp>
 
-typedef std::map<std::string, boost::shared_ptr<CEpos> > MapMotor;
+typedef std::map<std::string, CEpos* > MapMotor;
 
 class CEposManager{
 private:
