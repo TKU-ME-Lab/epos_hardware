@@ -254,9 +254,11 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
         bool found_some = false;
         bool found_all = true;
         BOOST_FOREACH(const transmission_interface::ActuatorInfo& actuator, info.actuators_) {
+            ROS_INFO("Start to Compare Actuator Names");
             std::vector<std::string> motor_names;
-            for (MapMotor::iterator motor_iterator = m_EposManager->GetMotors().begin(); motor_iterator != m_EposManager->GetMotors().end(); motor_iterator++){
-                std::string motor_name(motor_iterator->first);
+            MapMotor* motors = m_EposManager->GetMotorsPtr();
+            for (MapMotor::iterator motor_iterator = motors->begin(); motor_iterator != motors->end(); motor_iterator++){
+                ROS_INFO_STREAM("Push Pack Motor[" + motor_iterator->first + "]");
                 motor_names.push_back(motor_name);
             }
             if(std::find(motor_names.begin(), motor_names.end(), actuator.name_) != motor_names.end())

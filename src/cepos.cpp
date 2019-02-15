@@ -1,6 +1,7 @@
 #include "maxon_hardware/cepos.h"
 #include <boost/foreach.hpp>
-#include <math.h>
+//#include <math.h>
+#include <cmath>
 #include <iostream>
 
 CEpos::CEpos(const EposParameter Param):
@@ -99,7 +100,7 @@ void CEpos::write(){
     unsigned int error_code;
     int result = 0;
     if (m_OperationMode == PROFILE_VELOCITY_MODE){
-        if (isnan(m_velocity_cmd)){
+        if (std::isnan(m_velocity_cmd)){
             return;
         }
         int cmd = (int)m_velocity_cmd;
@@ -119,7 +120,7 @@ void CEpos::write(){
         }
     }
     else if (m_OperationMode == PROFILE_POSITION_MODE){
-        if (isnan(m_position_cmd)){
+        if (std::isnan(m_position_cmd)){
             return;
         }
         VCS_MoveToPosition(m_keyhandle, m_nodeid, (int)m_position_cmd, true, true, &error_code);
