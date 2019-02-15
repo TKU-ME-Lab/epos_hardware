@@ -1,4 +1,4 @@
-forward_left_motor:
+forward_left_actuator:
   actuator: 'EPOS2'
   protocol: 'MAXON SERIAL V2'
   interface: 'USB'
@@ -16,7 +16,7 @@ forward_left_motor:
     acceleration: 46319
     deceleration: 46319
 
-forward_right_motor:
+forward_right_actuator:
   actuator: 'EPOS2'
   serial_number: '602079023956'
   protocol: 'CANopen'
@@ -34,7 +34,7 @@ forward_right_motor:
     acceleration: 46319
     deceleration: 46319
 
-backward_left_motor:
+backward_left_actuator:
   actuator: 'EPOS2'
   serial_number: '602079023838'
   protocol: 'CANopen'
@@ -52,7 +52,7 @@ backward_left_motor:
     acceleration: 46319
     deceleration: 46319
 
-backward_right_motor:
+backward_right_actuator:
   actuator: 'EPOS2'
   serial_number: '602079024057'
   protocol: 'CANopen'

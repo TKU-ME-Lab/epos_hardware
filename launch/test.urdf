@@ -36,62 +36,62 @@
     </inertial>
   </link>
   
-  <joint name="test_joint1" type="revolute">
+  <joint name="forward_left_joint" type="continuous">
     <parent link="base"/>
     <child link="link1"/>
   </joint>
 
-  <transmission name="test_joint1_trans">
+  <transmission name="forward_left_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="test_joint1">
+    <joint name="forward_left_joint">
       <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     </joint>
-    <actuator name="forward_left_motor">
+    <actuator name="forward_left_actuator">
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
 
-  <joint name="test_joint2" type="revolute">
+  <joint name="forward_right_joint" type="continuous">
     <parent link="base"/>
     <child link="link2"/>
   </joint>
 
-  <transmission name="test_joint2_trans">
+  <transmission name="forward_right_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="test_joint2">
+    <joint name="forward_right_joint">
       <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     </joint>
-    <actuator name="forward_right_motor">
+    <actuator name="forward_right_actuator">
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
 
-  <joint name="test_joint3" type="revolute">
+  <joint name="backward_left_joint" type="continuous">
     <parent link="base"/>
     <child link="link3"/>
   </joint>
 
-  <transmission name="test_joint3_trans">
+  <transmission name="backward_left_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="test_joint3">
+    <joint name="backward_left_joint">
       <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     </joint>
-    <actuator name="backward_left_motor">
+    <actuator name="backward_left_actuator">
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
 
-  <joint name="test_joint4" type="revolute">
+  <joint name="backward_right_joint" type="continuous">
     <parent link="base"/>
     <child link="link4"/>
   </joint>
 
-  <transmission name="test_joint4_trans">
+  <transmission name="backward_right_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="test_joint3">
+    <joint name="backward_right_joint">
       <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     </joint>
-    <actuator name="backward_right_motor">
+    <actuator name="backward_right_actuator">
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
