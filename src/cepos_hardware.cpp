@@ -201,8 +201,7 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
                         {
                             ROS_WARN_STREAM("Param is_sub_device: true, but didn't have master device in params." );
                             continue;
-                        }
-                        
+                        } 
                     }   
                 }
             }
@@ -256,10 +255,9 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
         BOOST_FOREACH(const transmission_interface::ActuatorInfo& actuator, info.actuators_) {
             ROS_INFO("Start to Compare Actuator Names");
             std::vector<std::string> motor_names;
-            MapMotor* motors = m_EposManager->GetMotorsPtr();
             for (MapMotor::iterator motor_iterator = motors->begin(); motor_iterator != motors->end(); motor_iterator++){
                 ROS_INFO_STREAM("Push Pack Motor[" + motor_iterator->first + "]");
-                motor_names.push_back(motor_name);
+                motor_names.push_back(motor_iterator->first);
             }
             if(std::find(motor_names.begin(), motor_names.end(), actuator.name_) != motor_names.end())
 	            found_some = true;

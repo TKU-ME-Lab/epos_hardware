@@ -7,37 +7,27 @@ CEposManager::CEposManager(std::vector<EposParameter> Params){
     BOOST_FOREACH(const EposParameter &Param, Params){
         if (!Param.is_sub_device){
             std::cout << "  Motor:" << Param.motor_name << std::endl;
-            std::string motor_name = Param.motor_name;
-            m_motor_names.push_back(motor_name);
             CEpos* motor = new CEpos(Param);
-            m_motors.push_back(motor);
-            std::cout << "  Get Iter" << std::endl;
-            std::vector<std::string>::reverse_iterator it = m_motor_names.rbegin();
-            std::cout << "  Insert" << std::endl;
-            m_motormap.insert({*it, motor});
+            m_motormap.insert({Param.motor_name, motor});
         }
     }
 
     BOOST_FOREACH(const EposParameter &Param, Params){
         if (Param.is_sub_device){
             std::cout << "  Motor:" << Param.motor_name << std::endl;
-            std::string motor_name = Param.motor_name;
-            m_motor_names.push_back(motor_name);
-            std::cout << "  Find Master Device" << std::endl;
             MapMotor::iterator iter = m_motormap.find(Param.master_device);
-            std::cout << "  Get Handle" << std::endl;
             CEpos* motor = new CEpos(Param, iter->second->GetHANDLE());
-            m_motors.push_back(motor);
-            std::cout << "  Get Iter" << std::endl;
-            std::vector<std::string>::reverse_iterator it = m_motor_names.rbegin();
-            std::cout << "  Push back" << std::endl;
-            m_motormap.insert(std::make_pair(*it, motor));
+            m_motormap.insert(std::make_pair(Param.motor_name, motor));
         }
     }
 }
 
 MapMotor CEposManager::GetMotors(){
     return m_motormap;
+}
+
+MapMotor* CEposManager::GetMotorsPtr(){
+    return &m_motormap;
 }
 
 bool CEposManager::init(){
