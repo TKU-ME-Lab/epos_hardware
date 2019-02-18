@@ -10,7 +10,9 @@ CEpos::CEpos(const EposParameter Param):
     std::cout << "    Init Epos" << std::endl;
 
     unsigned int error_code;
-    if (CreateDeviceKeyHandle(m_device_name, Param.protocol, Param.interface, m_nodeid, m_serial_number, &m_keyhandle)){
+    m_keyhandle = CreateDeviceKeyHandle(m_device_name, Param.protocol, Param.interface, m_nodeid, m_serial_number);
+
+    if (m_keyhandle){
         std::cout << "    Got Key Handle" << std::endl;
     }
     else{
@@ -18,13 +20,22 @@ CEpos::CEpos(const EposParameter Param):
         return;
     }
 
+    if (Param.clear_fault){
+        if (!VCS_ClearFault(m_keyhandle, m_nodeid, &error_code)){
+            std::cout << "    Failed to Clear Fault" << ", Error Code:" << (char)error_code << std::endl;   
+        }
+    }
+
     if (Param.mode == "profile_velocity"){
         m_OperationMode = PROFILE_VELOCITY_MODE;
 
         if (VCS_ActivateProfileVelocityMode(m_keyhandle, m_nodeid, &error_code)){
             if (!VCS_SetVelocityProfile(m_keyhandle, m_nodeid, Param.velocity_profile.acceleration, Param.velocity_profile.deceleration, &error_code)){
-                std::cout << "Failed to Set Velocity Profile" << ", Error Code:" << (char)error_code << std::endl;
+                std::cout << "    Failed to Set Velocity Profile" << ", Error Code:" << (char)error_code << std::endl;
             }
+        }
+        else{
+            std::cout << "    Failed to Activate Profile Velocity Mode" << ", Error Code:" << (char)error_code << std::endl; 
         }
     }
     else if (Param.mode == "profile_position"){
@@ -32,20 +43,21 @@ CEpos::CEpos(const EposParameter Param):
 
         if (VCS_ActivateProfilePositionMode(m_keyhandle, m_nodeid, &error_code)){
             if (!VCS_SetPositionProfile(m_keyhandle, m_nodeid, Param.position_profile.velocity, Param.velocity_profile.acceleration, Param.velocity_profile.deceleration, &error_code)){
-                std::cout << "Failed to Set Position Profile"  << ", Error Code:" << (char)error_code << std::endl;
+                std::cout << "    Failed to Set Position Profile"  << ", Error Code:" << (char)error_code << std::endl;
             }
         }
-    }
-    
-    if (Param.clear_fault){
-        VCS_ClearFault(m_keyhandle, m_nodeid, &error_code);
+        else{
+            std::cout << "    Failed to Activate Profile Position Mode" << ", Error Code:" << (char)error_code << std::endl;  
+        }
     }
 
     if (!VCS_SetEnableState(m_keyhandle, m_nodeid, &error_code)){
         m_has_init = false;
     }
+    else{
+        m_has_init = true;
+    }
 
-    m_has_init = true;
     std::cout << "    Init Epos done" << std::endl;
 }
 
@@ -62,6 +74,9 @@ CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
                 std::cout << "Failed to Set Velocity Profile" << ", Error Code:" << (char)error_code << std::endl;
             }
         }
+        else{
+            std::cout << "    Failed to Activate Profile Velocity Mode" << ", Error Code:" << (char)error_code << std::endl; 
+        }
     }
     else if (Param.mode == "profile_position"){
         m_OperationMode = PROFILE_POSITION_MODE;
@@ -70,17 +85,24 @@ CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
                 std::cout << "Failed to Set Position Profile"  << ", Error Code:" << (char)error_code << std::endl;
             }
         }
+        else{
+            std::cout << "    Failed to Activate Profile Position Mode" << ", Error Code:" << (char)error_code << std::endl;  
+        }
     }
 
     if (Param.clear_fault){
-        VCS_ClearFault(m_keyhandle, m_nodeid, &error_code);
+        if (!VCS_ClearFault(m_keyhandle, m_nodeid, &error_code)){
+            std::cout << "    Failed to Clear Fault" << ", Error Code:" << (char)error_code << std::endl;   
+        }
     }
 
     if (!VCS_SetEnableState(m_keyhandle, m_nodeid, &error_code)){
         m_has_init = false;
     }
+    else{
+        m_has_init = true;
+    }
 
-    m_has_init = true;
     std::cout << "    Init Epos done" << std::endl;
 }
 
