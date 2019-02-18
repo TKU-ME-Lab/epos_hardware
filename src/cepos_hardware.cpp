@@ -225,13 +225,12 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
     for (MapMotor::iterator motor_iterator = motors->begin(); motor_iterator != motors->end(); motor_iterator++){        
         hardware_interface::ActuatorStateHandle statehandle(motor_iterator->first, motor_iterator->second->GetPositionPtr(), motor_iterator->second->GetVelocityPtr()
                                                             , motor_iterator->second->GetEffortPtr());
-        ROS_INFO_STREAM("Create ActuatorStateHandle, Name" + statehandle.getName());
+        ROS_INFO_STREAM("Create ActuatorStateHandle, Name: " + statehandle.getName());
         m_asi.registerHandle(statehandle);
-
         hardware_interface::ActuatorHandle position_handle(statehandle, motor_iterator->second->GetPositionCmdPtr());
-        m_asi.registerHandle(position_handle);
+        m_api.registerHandle(position_handle);
         hardware_interface::ActuatorHandle velocity_handle(statehandle, motor_iterator->second->GetVelocityCmdPtr());
-        m_asi.registerHandle(velocity_handle);
+        m_avi.registerHandle(velocity_handle);
 
         CMotorStatus* MotorStatus = new CMotorStatus(motor_iterator->second);
         m_updater.setHardwareID(motor_iterator->second->serial_number());
