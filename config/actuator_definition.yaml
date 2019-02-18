@@ -1,4 +1,4 @@
-forward_left_actuator:
+backward_right_actuator:
   actuator: 'EPOS2'
   protocol: 'MAXON SERIAL V2'
   interface: 'USB'
@@ -21,7 +21,7 @@ forward_right_actuator:
   serial_number: '602079023956'
   protocol: 'CANopen'
   is_sub_device: true
-  master_device: 'forward_left_actuator'
+  master_device: 'backward_right_actuator'
   node_id: 3
   operation_mode: 'profile_velocity'
   clear_fault: true
@@ -39,7 +39,7 @@ backward_left_actuator:
   serial_number: '602079023838'
   protocol: 'CANopen'
   is_sub_device: true
-  master_device: 'forward_left_actuator'
+  master_device: 'backward_right_actuator'
   node_id: 2
   operation_mode: 'profile_velocity'
   clear_fault: true
@@ -52,12 +52,12 @@ backward_left_actuator:
     acceleration: 46319
     deceleration: 46319
 
-backward_right_actuator:
+forward_left_actuator:
   actuator: 'EPOS2'
   serial_number: '602079024066'
   protocol: 'CANopen'
   is_sub_device: true
-  master_device: 'forward_left_actuator'
+  master_device: 'backward_right_actuator'
   node_id: 4
   operation_mode: 'profile_velocity'
   clear_fault: true

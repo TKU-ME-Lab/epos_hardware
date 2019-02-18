@@ -135,66 +135,74 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
                     else
                     {
                         if (motor_config_nh.getParam("master_device", Param.master_device)){
-                            if (motor_config_nh.getParam("serial_number", Param.serial_number)){
-                                if (!motor_config_nh.getParam("operation_mode", Param.mode)){
-                                    ROS_WARN("No operation_mode in parameters");
+                            int _nodeid = 0;
+                            if (motor_config_nh.getParam("node_id", _nodeid)){
+                                Param.nodeid = (uint16_t)_nodeid;
+                                std::stringstream ss;
+                                ss << Param.nodeid;
+                                ROS_INFO_STREAM("Node ID: " + ss.str());
+
+                                if (motor_config_nh.getParam("serial_number", Param.serial_number)){
+                                    if (!motor_config_nh.getParam("operation_mode", Param.mode)){
+                                        ROS_WARN("No operation_mode in parameters");
+                                    }
+                                    
+                                    if (!motor_config_nh.getParam("clear_fault", Param.clear_fault)){
+                                        ROS_WARN("No clear_fault in parameters");
+                                    }
+                                    
+                                    if (!motor_config_nh.hasParam("position_profile")){
+                                        ros::NodeHandle position_profile_nh(motor_config_nh, "position_profile");
+                                        int _velocity;
+                                        int _acceleration;
+                                        int _deceleration;
+                                        if (position_profile_nh.getParam("velocity", _velocity)){
+                                            Param.position_profile.velocity = (unsigned int)_velocity;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have velocity in position_profile");
+                                        }
+
+                                        if (position_profile_nh.getParam("acceleration", _acceleration)){
+                                            Param.position_profile.acceleration = (unsigned int)_acceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have acceleration in position_profile");
+                                        }
+
+                                        if (position_profile_nh.getParam("deceleration", _deceleration)){
+                                            Param.position_profile.deceleration = (unsigned int)_deceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have deceleration in position_profile");
+                                        }
+                                    }
+
+                                    if (!motor_config_nh.hasParam("velocity_profile")){
+                                        ros::NodeHandle velocity_profile_nh(motor_config_nh, "velocity_profile");
+                                        int _acceleration;
+                                        int _deceleration;
+                                        if (velocity_profile_nh.getParam("acceleration", _acceleration)){
+                                            Param.velocity_profile.acceleration = (unsigned int)_acceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have acceleration in velocity_profile");
+                                        }
+
+                                        if (velocity_profile_nh.getParam("deceleration", _deceleration)){
+                                            Param.velocity_profile.deceleration = (unsigned int)_deceleration;
+                                        }
+                                        else{
+                                            ROS_WARN("Didn't have deceleration in velocity_profile");
+                                        }
+                                    }
+
+                                    Params.push_back(Param);
                                 }
-                                
-                                if (!motor_config_nh.getParam("clear_fault", Param.clear_fault)){
-                                    ROS_WARN("No clear_fault in parameters");
+                                else{
+                                    ROS_WARN_STREAM(motor_name + ", didn't have serial_number");
+                                    continue;
                                 }
-                                
-                                if (!motor_config_nh.hasParam("position_profile")){
-                                    ros::NodeHandle position_profile_nh(motor_config_nh, "position_profile");
-                                    int _velocity;
-                                    int _acceleration;
-                                    int _deceleration;
-                                    if (position_profile_nh.getParam("velocity", _velocity)){
-                                        Param.position_profile.velocity = (unsigned int)_velocity;
-                                    }
-                                    else{
-                                        ROS_WARN("Didn't have velocity in position_profile");
-                                    }
-
-                                    if (position_profile_nh.getParam("acceleration", _acceleration)){
-                                        Param.position_profile.acceleration = (unsigned int)_acceleration;
-                                    }
-                                    else{
-                                        ROS_WARN("Didn't have acceleration in position_profile");
-                                    }
-
-                                    if (position_profile_nh.getParam("deceleration", _deceleration)){
-                                        Param.position_profile.deceleration = (unsigned int)_deceleration;
-                                    }
-                                    else{
-                                        ROS_WARN("Didn't have deceleration in position_profile");
-                                    }
-                                }
-
-                                if (!motor_config_nh.hasParam("velocity_profile")){
-                                    ros::NodeHandle velocity_profile_nh(motor_config_nh, "velocity_profile");
-                                    int _acceleration;
-                                    int _deceleration;
-                                    if (velocity_profile_nh.getParam("acceleration", _acceleration)){
-                                        Param.velocity_profile.acceleration = (unsigned int)_acceleration;
-                                    }
-                                    else{
-                                        ROS_WARN("Didn't have acceleration in velocity_profile");
-                                    }
-
-                                    if (velocity_profile_nh.getParam("deceleration", _deceleration)){
-                                        Param.velocity_profile.deceleration = (unsigned int)_deceleration;
-                                    }
-                                    else{
-                                        ROS_WARN("Didn't have deceleration in velocity_profile");
-                                    }
-                                }
-
-                                Params.push_back(Param);
-                            }
-                            else{
-                                ROS_WARN_STREAM(motor_name + ", didn't have serial_number");
-                                continue;
                             }
                         }
                         else

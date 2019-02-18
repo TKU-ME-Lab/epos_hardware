@@ -67,6 +67,12 @@ CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
     std::cout << "    Init Epos" << std::endl;    
     unsigned int error_code;
 
+    if (Param.clear_fault){
+        if (!VCS_ClearFault(m_keyhandle, m_nodeid, &error_code)){
+            std::cout << "    Failed to Clear Fault , ID: " << m_nodeid <<  ", Error Code:" << (char)error_code << std::endl;   
+        }
+    }
+
     if (Param.mode == "profile_velocity"){
         m_OperationMode = PROFILE_VELOCITY_MODE;
         if (VCS_ActivateProfileVelocityMode(m_keyhandle, m_nodeid, &error_code)){
@@ -90,12 +96,6 @@ CEpos::CEpos(const EposParameter Param, const HANDLE keyhandle):
         }
     }
 
-    if (Param.clear_fault){
-        if (!VCS_ClearFault(m_keyhandle, m_nodeid, &error_code)){
-            std::cout << "    Failed to Clear Fault" << ", Error Code:" << (char)error_code << std::endl;   
-        }
-    }
-
     if (!VCS_SetEnableState(m_keyhandle, m_nodeid, &error_code)){
         m_has_init = false;
     }
@@ -115,7 +115,7 @@ CEpos::~CEpos(){
 }
 
 void CEpos::write(){
-    if (m_has_init){
+    if (!m_has_init){
         return;
     }
 
@@ -125,6 +125,7 @@ void CEpos::write(){
         if (std::isnan(m_velocity_cmd)){
             return;
         }
+        
         int cmd = (int)m_velocity_cmd;
         if (m_max_profile_velocity >= 0){
             if (cmd < -m_max_profile_velocity){
@@ -134,6 +135,7 @@ void CEpos::write(){
                 cmd = m_max_profile_velocity;
             }
         }
+
         if (cmd == 0 && m_halt_velocity){
             VCS_HaltVelocityMovement(m_keyhandle, m_nodeid, &error_code);
         }

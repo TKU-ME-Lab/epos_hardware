@@ -68,7 +68,7 @@ private:
     double m_position_cmd;
     double m_velocity_cmd;
 
-    int m_max_profile_velocity;
+    int m_max_profile_velocity = 65535;
     
     bool m_halt_velocity;
 
