@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<robot name="example">
+
+  <link name="base">
+    <inertial>
+        <mass value="1"/>
+        <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <link name="link2">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  
+  <link name="link3">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <link name="link4">
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1" iyy="1" izz="1" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  
+  <joint name="forward_left_joint" type="continuous">
+    <parent link="base"/>
+    <child link="link1"/>
+  </joint>
+
+  <transmission name="forward_left_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="forward_left_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="forward_left_actuator">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="forward_right_joint" type="continuous">
+    <parent link="base"/>
+    <child link="link2"/>
+  </joint>
+
+  <transmission name="forward_right_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="forward_right_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="forward_right_actuator">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="backward_left_joint" type="continuous">
+    <parent link="base"/>
+    <child link="link3"/>
+  </joint>
+
+  <transmission name="backward_left_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="backward_left_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="backward_left_actuator">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="backward_right_joint" type="continuous">
+    <parent link="base"/>
+    <child link="link4"/>
+  </joint>
+
+  <transmission name="backward_right_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="backward_right_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="backward_right_actuator">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+
+</robot>

@@ -1,10 +1,11 @@
 #include "maxon_hardware/util.h"
 #include <boost/foreach.hpp>
 #include <sstream>
+#include <iostream>
 
 #define MAX_STRING_SIZE 1000
 
-bool SerialNumberFromHex(const std::string* str, uint64_t* serial_number){
+bool SerialNumberFromHex(const std::string &str, uint64_t* serial_number){
     std::stringstream ss;
     ss << std::hex << str;
     ss >> *serial_number;
@@ -127,16 +128,46 @@ int GetBaudrateList(const std::string device_name, const std::string protocol_st
     }
 }
 
-int CreateDeviceKeyHandle(std::string actuator, std::string protocol, std::string interface, uint64_t nodeid, std::string serial_number, HANDLE* keyhandle){
+HANDLE CreateDeviceKeyHandle(std::string actuator, std::string protocol, std::string interface, unsigned long nodeid, std::string serial_number){
     std::vector<std::string> port_names;
     
     unsigned int error_code;
 
-    int result = GetPortNameList(actuator, protocol, interface, &port_names, &error_code);
+    if (GetPortNameList(actuator, protocol, interface, &port_names, &error_code)){
+        std::cout << "Find " << port_names.size() << " Ports." << std::endl;
+        BOOST_FOREACH(const std::string &port_name, port_names){
+            std::cout << "Port:" << port_name << std::endl;
+        }
+    }
+    else{
+        std::cout << "didn't have any port can use." << std::endl;
+        return 0;
+    }
 
-    
+    BOOST_FOREACH(const std::string &port_name, port_names){
+        HANDLE handle = VCS_OpenDevice((char*)actuator.c_str(), (char*)protocol.c_str(), (char*)interface.c_str(), (char*)port_name.c_str(), &error_code);
+        if (handle){
+            unsigned int bytes_read;
+            uint64_t Serial_Number_From_Epos;
+            uint64_t Serial_Number_From_Config;
+
+            if (VCS_GetObject(handle, nodeid, 0x2004, 0x00, &Serial_Number_From_Epos, 8, &bytes_read, &error_code)){
+                if (SerialNumberFromHex(serial_number, &Serial_Number_From_Config)){
+                    if (Serial_Number_From_Epos == Serial_Number_From_Config){
+                        return handle;
+                    }
+                    else{
+                        std::cout << "Serial Number:" << Serial_Number_From_Config << "From Config File" <<  std::endl;
+                        std::cout << "Serial Number:" << Serial_Number_From_Epos << "From Epos" <<  std::endl;
+                    }
+                }    
+            }
+        }
+        else{
+            std::cout << "HANDLE is zero" << std::endl;
+        }
+    }
+
+    return 0;
 }
 
-int EnumerateDeviceKeyHandle(){
-
-}

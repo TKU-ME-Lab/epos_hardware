@@ -1,28 +1,23 @@
 #include "maxon_hardware/cepos.h"
+#include <boost/ptr_container/ptr_map.hpp>
 
-struct EposParameter{
-    std::string motor_name;
-    std::string actuator;
-    std::string protocol;
-    std::string interface;
-    uint64_t nodeid;
-    std::string serial_number;
-    std::string mode;
-    bool clear_fault;
-    bool is_sub_device;
-    std::string master_device;
-};
-
+typedef std::map<std::string, CEpos* > MapMotor;
 
 class CEposManager{
 private:
-    std::map<std::string, boost::shared_ptr<CEpos> > m_motors;
-
-
+    MapMotor m_motormap;
+    //MapMotor m_motors;
+    //std::vector<std::string> m_motor_names;
+    //std::vector<CEpos*> m_motors; 
 
 public:
     CEposManager(std::vector<EposParameter>);
 
-    std::map<std::string, boost::shared_ptr<CEpos> > GetMotors();
+    MapMotor GetMotors();
+    MapMotor* GetMotorsPtr();
 
+    bool init();
+    void read();
+    void write();
+    
 };

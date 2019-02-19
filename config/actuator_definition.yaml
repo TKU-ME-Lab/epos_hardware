@@ -1,28 +1,13 @@
-forward_left_motor:
+backward_right_actuator:
   actuator: 'EPOS2'
   protocol: 'MAXON SERIAL V2'
   interface: 'USB'
-  serial_number: '602079024066'
+  serial_number: '602079024057'
   is_sub_device: false
   node_id: 1
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true
 
-  motor:
-    type: 1
-    dc_motor:
-      nominal_current: 4.26
-      max_output_current: 69.3
-      thermal_time_constant: 43.9
-  sensor:
-    type: 1
-    incremental_encoder:
-      resolution: 500
-      inverted_polarity: false
-  safety:
-    max_following_error: 2000
-    max_profile_velocity: 7000
-    max_acceleration: 97295
   position_profile:
     velocity: 589
     acceleration: 46319
@@ -30,46 +15,57 @@ forward_left_motor:
   velocity_profile:
     acceleration: 46319
     deceleration: 46319
-  position_regulator:
-    gain:
-        p:527
-        i:1767
-        d:838
-  veloctiy_regulator:
-    gain:
-        p:2235
-        i:83
-  current_regulator:
-    gain:
-        p:268
-        i:83
 
-forward_right_motor:
+forward_right_actuator:
   actuator: 'EPOS2'
   serial_number: '602079023956'
   protocol: 'CANopen'
   is_sub_device: true
-  master_device: 'forward_left_motor'
+  master_device: 'backward_right_actuator'
   node_id: 3
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true
 
-backward_left_motor:
+  position_profile:
+    velocity: 589
+    acceleration: 46319
+    deceleration: 46319
+  velocity_profile:
+    acceleration: 46319
+    deceleration: 46319
+
+backward_left_actuator:
   actuator: 'EPOS2'
   serial_number: '602079023838'
   protocol: 'CANopen'
   is_sub_device: true
-  master_device: 'forward_left_motor'
+  master_device: 'backward_right_actuator'
   node_id: 2
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true
 
-backward_right_motor:
+  position_profile:
+    velocity: 589
+    acceleration: 46319
+    deceleration: 46319
+  velocity_profile:
+    acceleration: 46319
+    deceleration: 46319
+
+forward_left_actuator:
   actuator: 'EPOS2'
-  serial_number: '602079024057'
+  serial_number: '602079024066'
   protocol: 'CANopen'
   is_sub_device: true
-  master_device: 'forward_left_motor'
+  master_device: 'backward_right_actuator'
   node_id: 4
   operation_mode: 'profile_velocity'
-  clear_faults: true
+  clear_fault: true
+
+  position_profile:
+    velocity: 589
+    acceleration: 46319
+    deceleration: 46319
+  velocity_profile:
+    acceleration: 46319
+    deceleration: 46319

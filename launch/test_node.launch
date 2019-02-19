@@ -1,9 +1,24 @@
 <launch>
-    <node name="maxon_test" pkg="maxon_hardware" type="maxon_test" args="forward_left_motor
-                                                                         forward_right_motor
-                                                                         backward_left_motor
-                                                                         backward_right_motor" output="screen">
+    <rosparam file="$(find maxon_hardware)/config/controller_config.yaml" command="load"/>
+
+    <param name="robot_description" textfile="$(find maxon_hardware)/launch/test.urdf"/>
+    <node name="epos_hardware_node" pkg="maxon_hardware" type="epos_hardware_node" args="forward_left_actuator
+                                                                         forward_right_actuator
+                                                                         backward_left_actuator
+                                                                         backward_right_actuator" output="screen">
         <rosparam command="load" file="$(find maxon_hardware)/config/actuator_definition.yaml"/>
     </node>
+    <!--
+    <node name ="joint_state_publisher" pkg = "joint_state_publisher" type ="joint_state_publisher"/>
+    
+    <node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "state_publisher"/>
+    -->
 
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	    output="screen" args="fl_velocity_controller fl_joint_state_controller
+                              fr_velocity_controller fr_joint_state_controller
+                              bl_velocity_controller bl_joint_state_controller
+                              br_velocity_controller br_joint_state_controller"/>
+
+    
 </launch>
