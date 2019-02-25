@@ -1,4 +1,4 @@
-#include "maxon_hardware/util.h"
+#include "epos_hardware/util.h"
 #include <boost/foreach.hpp>
 #include <sstream>
 #include <iostream>

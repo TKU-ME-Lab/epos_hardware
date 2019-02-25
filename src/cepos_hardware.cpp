@@ -1,4 +1,4 @@
-#include "maxon_hardware/cepos_hardware.h"
+#include "epos_hardware/cepos_hardware.h"
 #include <boost/foreach.hpp>
 #include <boost/utility.hpp>
 #include <string>

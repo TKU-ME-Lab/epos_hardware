@@ -1,5 +1,5 @@
-#include "maxon_hardware/Definitions.h"
-#include "maxon_hardware/util.h"
+#include "epos_hardware/Definitions.h"
+#include "epos_hardware/util.h"
 
 #define STATUSWORD(b, v) ((v >> b) & 1)
 #define READY_TO_SWITCH_ON    (0)

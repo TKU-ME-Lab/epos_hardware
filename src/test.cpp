@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-//#include "maxon_hardware/Definitions.h"
-#include "maxon_hardware/util.h"
+
+#include "epos_hardware/util.h"
 
 int main(int argc, char** argv){
     ros::init(argc, argv, "maxon_test");

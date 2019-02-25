@@ -9,7 +9,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <pluginlib/class_loader.hpp>
 
-#include "maxon_hardware/cepos_manager.h"
+#include "epos_hardware/cepos_manager.h"
 
 class CMotorStatus{
 private:

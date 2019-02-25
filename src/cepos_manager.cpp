@@ -1,4 +1,4 @@
-#include "maxon_hardware/cepos_manager.h"
+#include "epos_hardware/cepos_manager.h"
 #include <boost/foreach.hpp>
 #include <iostream>
 

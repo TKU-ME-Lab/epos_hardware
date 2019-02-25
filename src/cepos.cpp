@@ -1,6 +1,6 @@
-#include "maxon_hardware/cepos.h"
+#include "epos_hardware/cepos.h"
 #include <boost/foreach.hpp>
-//#include <math.h>
+
 #include <cmath>
 #include <iostream>
 

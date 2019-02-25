@@ -2,9 +2,9 @@
 #include <vector>
 #include <map>
 #include <stdint.h>
-#include <maxon_hardware/Definitions.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+#include "epos_hardware/Definitions.h"
 
 typedef void* HANDLE;
 

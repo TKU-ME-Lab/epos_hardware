@@ -1,4 +1,4 @@
-#include "maxon_hardware/cepos.h"
+#include "epos_hardware/cepos.h"
 #include <boost/ptr_container/ptr_map.hpp>
 
 typedef std::map<std::string, CEpos* > MapMotor;
