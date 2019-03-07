@@ -275,8 +275,8 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
         if(found_all) {
             if (!m_transmission_loader->load(info)) {
                 ROS_ERROR_STREAM("Error loading transmission: " << info.name_);
-            return;
-        }
+                return;
+            }
         else
             ROS_INFO_STREAM("Loaded transmission: " << info.name_);
         }
