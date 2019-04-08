@@ -1,0 +1,11 @@
+<launch>
+    <rosparam file="$(find epos_hardware)/config/controller_config.yaml" command="load"/>
+
+    <param name="robot_description" textfile="$(find epos_hardware)/launch/test.urdf"/>
+    <node name="epos_hardware_node" pkg="epos_hardware" type="epos_hardware_node" args="forward_left_actuator
+                                                                         forward_right_actuator
+                                                                         backward_left_actuator
+                                                                         backward_right_actuator" output="screen">
+        <rosparam command="load" file="$(find epos_hardware)/config/actuator_definition.yaml"/>
+    </node>    
+</launch>
