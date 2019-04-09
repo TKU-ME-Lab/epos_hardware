@@ -10,11 +10,11 @@ backward_right_actuator:
 
   position_profile:
     velocity: 589       # [rpm]
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
   velocity_profile:
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
 
 forward_right_actuator:
   actuator: 'EPOS2'
@@ -28,11 +28,11 @@ forward_right_actuator:
 
   position_profile:
     velocity: 589       # [rpm]
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
   velocity_profile:
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
 
 backward_left_actuator:
   actuator: 'EPOS2'
@@ -46,11 +46,11 @@ backward_left_actuator:
 
   position_profile:
     velocity: 589       # [rpm]
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
   velocity_profile:
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
 
 forward_left_actuator:
   actuator: 'EPOS2'
@@ -64,8 +64,8 @@ forward_left_actuator:
 
   position_profile:
     velocity: 589       # [rpm]
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
   velocity_profile:
-    acceleration: 46319 # [rpm/s]
-    deceleration: 46319 # [rpm/s]
+    acceleration: 1178 # [rpm/s]
+    deceleration: 1178 # [rpm/s]
