@@ -14,11 +14,11 @@ int main(int argc, char** argv){
         motor_names.push_back(argv[i+1]);
     }
 
-    CEposHardware robot(nh, pnh, motor_names);
-    controller_manager::ControllerManager CM(&robot, nh);
-
-    ros::AsyncSpinner spinner(1);
+    ros::AsyncSpinner spinner(2);
     spinner.start();
+
+    CEposHardware robot(nh, pnh, motor_names);
+    controller_manager::ControllerManager CM(&robot, nh);    
 
     if (!robot.init()){
         ROS_FATAL("Failed to initializer motors");
@@ -37,5 +37,6 @@ int main(int argc, char** argv){
         controller_rate.sleep();
     }
 
+    ros::waitForShutdown();
     return 1;
 }
