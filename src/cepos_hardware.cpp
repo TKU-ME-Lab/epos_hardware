@@ -298,13 +298,13 @@ void CEposHardware::read(){
 }
 
 void CEposHardware::write(){
-    m_EposManager->write();
     if (m_robot_transmissions.get<transmission_interface::JointToActuatorVelocityInterface>()){
         m_robot_transmissions.get<transmission_interface::JointToActuatorVelocityInterface>()->propagate();
     }
     if (m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()){
         m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()->propagate();
     }
+    m_EposManager->write();
 }
 
 void CEposHardware::update_diagnostics(){
