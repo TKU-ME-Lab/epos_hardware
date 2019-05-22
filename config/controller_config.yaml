@@ -2,11 +2,6 @@ fl_velocity_controller:
    type: velocity_controllers/JointVelocityController
    joint: forward_left_joint
 
-fl_position_controller:
-  type: position_controllers/JointPositionController
-  joint: forward_left_joint
-  pid: {p: 527 , i: 1767 , d: 838}
-
 fl_joint_state_controller:
   type: joint_state_controller/JointStateController
   publish_rate: 50
@@ -14,11 +9,6 @@ fl_joint_state_controller:
 fr_velocity_controller:
    type: velocity_controllers/JointVelocityController
    joint: forward_right_joint
-
-fr_position_controller:
-  type: position_controllers/JointPositionController
-  joint: forward_right_joint
-  pid: {p: 527 , i: 1767 , d: 838}
 
 fr_joint_state_controller:
   type: joint_state_controller/JointStateController
@@ -28,11 +18,6 @@ bl_velocity_controller:
    type: velocity_controllers/JointVelocityController
    joint: backward_left_joint
 
-bl_position_controller:
-  type: position_controllers/JointPositionController
-  joint: backward_left_joint
-  pid: {p: 527 , i: 1767 , d: 838}
-
 bl_joint_state_controller:
   type: joint_state_controller/JointStateController
   publish_rate: 50
@@ -40,11 +25,6 @@ bl_joint_state_controller:
 br_velocity_controller:
    type: velocity_controllers/JointVelocityController
    joint: backward_right_joint
-
-br_position_controller:
-  type: position_controllers/JointPositionController
-  joint: backward_right_joint
-  pid: {p: 527 , i: 1767 , d: 838}
 
 br_joint_state_controller:
   type: joint_state_controller/JointStateController

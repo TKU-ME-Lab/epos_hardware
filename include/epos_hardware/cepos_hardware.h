@@ -28,11 +28,8 @@ private:
     ros::NodeHandle m_private_nh;
     CEposManager* m_EposManager;
 
-    std::vector<hardware_interface::ActuatorStateHandle> m_ActuatorStateHandles;
-
     hardware_interface::ActuatorStateInterface m_asi;
     hardware_interface::VelocityActuatorInterface m_avi;
-    hardware_interface::PositionActuatorInterface m_api;
 
     transmission_interface::RobotTransmissions m_robot_transmissions;
 

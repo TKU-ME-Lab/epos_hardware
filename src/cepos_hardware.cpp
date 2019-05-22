@@ -235,8 +235,6 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
                                                             , motor_iterator->second->GetEffortPtr());
         ROS_INFO_STREAM("Create ActuatorStateHandle, Name: " + statehandle.getName());
         m_asi.registerHandle(statehandle);
-        hardware_interface::ActuatorHandle position_handle(statehandle, motor_iterator->second->GetPositionCmdPtr());
-        m_api.registerHandle(position_handle);
         hardware_interface::ActuatorHandle velocity_handle(statehandle, motor_iterator->second->GetVelocityCmdPtr());
         m_avi.registerHandle(velocity_handle);
 
@@ -252,7 +250,6 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
     }
 
     registerInterface(&m_asi);
-    registerInterface(&m_api);
     registerInterface(&m_avi);
     
     ROS_INFO("Compare Transmmision Interface");
@@ -284,6 +281,8 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
             ROS_ERROR_STREAM("Do not support transmissions that contain only some EPOS actuators: " << info.name_);
         }
     }
+
+
 }
 
 bool CEposHardware::init(){
@@ -300,9 +299,6 @@ void CEposHardware::read(){
 void CEposHardware::write(){
     if (m_robot_transmissions.get<transmission_interface::JointToActuatorVelocityInterface>()){
         m_robot_transmissions.get<transmission_interface::JointToActuatorVelocityInterface>()->propagate();
-    }
-    if (m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()){
-        m_robot_transmissions.get<transmission_interface::JointToActuatorPositionInterface>()->propagate();
     }
     m_EposManager->write();
 }
