@@ -59,3 +59,20 @@ void CEposManager::write(){
         motor_iterator->second->write();
     }
 }
+
+
+void CEposManager::SetEnable()
+{
+    for (MapMotor::iterator motor_iterator = m_motormap.begin(); motor_iterator != m_motormap.end(); motor_iterator++)
+    {
+        motor_iterator->second->SetEnable();
+    }
+}
+
+void CEposManager::SetDisable()
+{
+    for (MapMotor::iterator motor_iterator = m_motormap.begin(); motor_iterator != m_motormap.end(); motor_iterator++)
+    {
+        motor_iterator->second->SetDisable();
+    }
+}

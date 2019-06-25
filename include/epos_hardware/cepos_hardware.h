@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 #include <hardware_interface/actuator_command_interface.h>
 #include <hardware_interface/actuator_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -26,6 +27,8 @@ class CEposHardware : public hardware_interface::RobotHW {
 private:
     ros::NodeHandle m_nh;
     ros::NodeHandle m_private_nh;
+
+    ros::Subscriber m_Sub_SetEnable;
     CEposManager* m_EposManager;
 
     hardware_interface::ActuatorStateInterface m_asi;
@@ -38,6 +41,8 @@ private:
     diagnostic_updater::Updater m_updater;
     std::vector<CMotorStatus*> m_MotorStatus;
 
+
+   void SetEnableCallBack(const std_msgs::BoolConstPtr&);
 public:
     CEposHardware(ros::NodeHandle&, ros::NodeHandle&, const std::vector<std::string>);
 

@@ -19,5 +19,8 @@ public:
     bool init();
     void read();
     void write();
+
+    void SetEnable();
+    void SetDisable();
     
 };

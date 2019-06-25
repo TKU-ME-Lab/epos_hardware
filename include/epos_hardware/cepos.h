@@ -112,6 +112,9 @@ public:
     double* GetVelocityPtr();
     double* GetVelocityCmdPtr();
     double* GetEffortPtr();
+
+    void SetEnable();
+    void SetDisable();
     
 };
 

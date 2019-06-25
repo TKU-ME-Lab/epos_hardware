@@ -194,3 +194,16 @@ double* CEpos::GetVelocityCmdPtr(){
 double* CEpos::GetEffortPtr(){
     return &m_effort;
 }
+
+
+void CEpos::SetEnable()
+{
+    unsigned int error_code;
+    VCS_SetEnableState(m_keyhandle, m_nodeid, &error_code);
+}
+
+void CEpos::SetDisable()
+{
+    unsigned int error_code;
+    VCS_SetDisableState(m_keyhandle, m_nodeid, &error_code);
+}

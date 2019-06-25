@@ -4,6 +4,18 @@
 #include <string>
 #include <iostream>
 
+void CEposHardware::SetEnableCallBack(const std_msgs::BoolConstPtr& msg)
+{
+    if (msg->data == 1)
+    {
+        m_EposManager->SetEnable();
+    }   
+    else if (msg->data == 0)
+    {
+        m_EposManager->SetDisable();
+    }
+}
+
 CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const std::vector<std::string> motor_names):
                             m_nh(nh), m_private_nh(pnh), m_updater(nh, pnh)
 {        
@@ -282,7 +294,7 @@ CEposHardware::CEposHardware(ros::NodeHandle &nh, ros::NodeHandle &pnh, const st
         }
     }
 
-
+    m_Sub_SetEnable = m_nh.subscribe("SetEnable", 1, &CEposHardware::SetEnableCallBack, this);
 }
 
 bool CEposHardware::init(){
